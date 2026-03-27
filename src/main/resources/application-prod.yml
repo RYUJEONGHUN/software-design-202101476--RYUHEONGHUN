@@ -1,0 +1,12 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:postgresql://db:5432/schooldb # 서비스 이름 'db' 사용
+    username: admin
+    password: password
+  data:
+    redis:
+      host: redis # 서비스 이름 'redis' 사용
+      port: 6379
