@@ -55,4 +55,8 @@ public class User {
         this.name = name;
         return this;
     }
+    // User.java 내부
+    public void updateRole(UserRole role) {
+        this.role = role;
+    }
 }

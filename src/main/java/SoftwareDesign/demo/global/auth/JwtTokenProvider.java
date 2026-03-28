@@ -80,8 +80,12 @@ public class JwtTokenProvider { // 클래스 선언 확인
         String email = claims.getSubject();
         String role = claims.get("role", String.class);
 
+        String finalRole = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+
         Collection<? extends GrantedAuthority> authorities =
-                Collections.singleton(new SimpleGrantedAuthority(role));
+                Collections.singleton(new SimpleGrantedAuthority(finalRole));
+
+        log.info("인증 시도 중인 유저: {}, 부여된 권한: {}", email, finalRole); // 로그 찍어보면 확실하구먼!
 
         return new UsernamePasswordAuthenticationToken(email, "", authorities);
     }
