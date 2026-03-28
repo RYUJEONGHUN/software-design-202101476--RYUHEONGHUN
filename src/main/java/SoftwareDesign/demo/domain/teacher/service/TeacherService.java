@@ -1,5 +1,7 @@
 package SoftwareDesign.demo.domain.teacher.service;
 
+import SoftwareDesign.demo.domain.common.ErrorCode;
+import SoftwareDesign.demo.domain.common.exception.CustomException;
 import SoftwareDesign.demo.domain.teacher.entity.Teacher;
 import SoftwareDesign.demo.domain.teacher.repository.TeacherRepository;
 import SoftwareDesign.demo.domain.user.entity.User;
@@ -18,10 +20,10 @@ public class TeacherService {
 
     @Transactional
     public void registerTeacher(Long userId, String subject) {
+        // 1. 유저 조회
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
-
-        // 1. 권한 변경 (Dirty Checking으로 자동 업데이트)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        // 2. 권한 변경
         user.updateRole(UserRole.TEACHER);
 
         // 2. 교사 상세 정보 생성 및 저장
