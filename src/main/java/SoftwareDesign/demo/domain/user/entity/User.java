@@ -1,5 +1,6 @@
 package SoftwareDesign.demo.domain.user.entity;
 
+import SoftwareDesign.demo.domain.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -7,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import jakarta.persistence.Id;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -15,8 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
-@EntityListeners(AuditingEntityListener.class) // 생성일 자동화
-public class User {
+public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,10 +36,6 @@ public class User {
 
     @Column(name = "phone_number")
     private String phoneNumber;
-
-    @CreatedDate // 생성일 자동 주입
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
 
     @Builder
     public User(String username, String name, UserRole role, String phoneNumber) {

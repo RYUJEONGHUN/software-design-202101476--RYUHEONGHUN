@@ -2,6 +2,8 @@ package SoftwareDesign.demo.api.user;
 
 import SoftwareDesign.demo.api.user.dto.MeResponse;
 import SoftwareDesign.demo.api.user.dto.UserResponse;
+import SoftwareDesign.demo.domain.common.ApiResponse;
+import SoftwareDesign.demo.domain.common.SuccessCode;
 import SoftwareDesign.demo.domain.student.repository.StudentRepository;
 import SoftwareDesign.demo.domain.teacher.repository.TeacherRepository;
 import SoftwareDesign.demo.domain.user.entity.User;
@@ -30,17 +32,19 @@ public class UserController {
 
 
     @GetMapping("/test-token")
-    public ResponseEntity<?> getTestToken(@RequestParam String email) {
+    public ResponseEntity<ApiResponse<String>> getTestToken(@RequestParam String email) {
         User user = userRepository.findByUsername(email)
                 .orElseThrow(() -> new RuntimeException("유저 없음"));
 
         // JwtTokenProvider를 사용해 바로 토큰 생성 (비밀번호 검증 없이!)
         String token = tokenProvider.createAccessToken(user.getUsername(), user.getRole().name());
-        return ResponseEntity.ok(token);
+
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, token));
     }
 
+
     @GetMapping("/me")
-    public ResponseEntity<MeResponse> getMyInfo(Authentication authentication) {
+    public ResponseEntity<ApiResponse<MeResponse>> getMyInfo(Authentication authentication) {
         String email = authentication.getName(); // JWT에서 꺼낸 이메일
 
         User user = userRepository.findByUsername(email)
@@ -67,6 +71,6 @@ public class UserController {
             );
         }
 
-        return ResponseEntity.ok(builder.build());
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, builder.build()));
     }
 }

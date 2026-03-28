@@ -1,5 +1,6 @@
 package SoftwareDesign.demo.domain.teacher.entity;
 
+import SoftwareDesign.demo.domain.common.BaseTimeEntity;
 import SoftwareDesign.demo.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "teachers")
-public class Teacher{
+public class Teacher extends BaseTimeEntity {
 
     @Id
     private Long id; // User의 PK를 빌려 씀
