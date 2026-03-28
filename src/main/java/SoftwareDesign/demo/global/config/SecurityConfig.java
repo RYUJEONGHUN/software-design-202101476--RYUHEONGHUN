@@ -34,9 +34,11 @@ public class SecurityConfig {
 
                 // 2. 권한 설정 (Epic 1 & 2 요구사항 반영)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/users/test-token").permitAll()
                         .requestMatchers("/", "/login/**", "/oauth2/**", "/favicon.ico").permitAll()
                         .requestMatchers("/SoftwareDesign/demo/api/v1/teacher/**").hasRole("TEACHER") // 교사 전용 메뉴
-                        .requestMatchers("/SoftwareDesign/demo/api/v1/student/**").hasAnyRole("STUDENT", "TEACHER") // 학생/교사 공용
+                        .requestMatchers("/api/v1/student/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN") // 학생/교사 공용
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
 
