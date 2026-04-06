@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/grades")
 @RequiredArgsConstructor
-public class GradeController {
+public class GradeController implements GradeApi{
 
     private final GradeService gradeService;
     private final UserRepository userRepository;
