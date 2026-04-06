@@ -11,9 +11,12 @@ public enum SuccessCode {
     GET_SUCCESS(HttpStatus.OK, "조회에 성공했구먼!"),
     UPDATE_SUCCESS(HttpStatus.OK, "수정이 아주 잘 됐네."),
     DELETE_SUCCESS(HttpStatus.OK, "삭제가 완료되었네."),
+    GRADE_UPDATE_SUCCESS(HttpStatus.OK, "성적 수정이 완료되었네."),
+    GRADE_VIEW_SUCCESS(HttpStatus.OK, "성적표 조회가 완료되었네."),
 
     // 201 Created
-    CREATE_SUCCESS(HttpStatus.CREATED, "새로운 데이터가 생성되었네!");
+    CREATE_SUCCESS(HttpStatus.CREATED, "새로운 데이터가 생성되었네!"),
+    GRADE_REGISTER_SUCCESS(HttpStatus.CREATED, "성적 등록이 완료되었네!");
 
     private final HttpStatus httpStatus;
     private final String message;
