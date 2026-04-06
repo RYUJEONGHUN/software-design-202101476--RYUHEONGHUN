@@ -67,7 +67,8 @@ public class UserController {
         } else if (user.getRole() == UserRole.TEACHER) {
             teacherRepository.findById(user.getId()).ifPresent(t ->
                     builder.teacher(MeResponse.TeacherDetail.builder()
-                            .subject(t.getSubject()).build())
+                            .subject(t.getSubject())
+                            .teacherIdNum(t.getTeacherIdNum()).build())
             );
         }
 
