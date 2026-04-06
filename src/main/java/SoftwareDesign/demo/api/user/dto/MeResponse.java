@@ -1,5 +1,6 @@
 package SoftwareDesign.demo.api.user.dto;
 
+import SoftwareDesign.demo.domain.subject.entity.Subject;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -28,6 +29,7 @@ public class MeResponse {
     @Getter
     @Builder
     public static class TeacherDetail {
-        private String subject;
+        private Subject subject;
+        private String teacherIdNum;
     }
 }

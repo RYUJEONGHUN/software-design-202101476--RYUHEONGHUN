@@ -1,5 +1,6 @@
 package SoftwareDesign.demo.domain.student.entity;
 
+import SoftwareDesign.demo.domain.common.BaseTimeEntity;
 import SoftwareDesign.demo.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "students")
-public class Student {
+public class Student extends BaseTimeEntity {
 
     @Id
     private Long id; // User의 ID를 그대로 사용 (1:1 관계)

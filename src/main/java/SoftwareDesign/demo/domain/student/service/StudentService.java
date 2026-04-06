@@ -1,6 +1,8 @@
 package SoftwareDesign.demo.domain.student.service;
 
 import SoftwareDesign.demo.api.admin.dto.StudentCreateRequest;
+import SoftwareDesign.demo.domain.common.ErrorCode;
+import SoftwareDesign.demo.domain.common.exception.CustomException;
 import SoftwareDesign.demo.domain.student.entity.Student;
 import SoftwareDesign.demo.domain.student.repository.StudentRepository;
 import SoftwareDesign.demo.domain.user.entity.User;
@@ -21,11 +23,14 @@ public class StudentService {
     public void registerStudent(Long userId, StudentCreateRequest request) {
         // 1. 유저 조회
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // 2. 유저 권한 변경 (STUDENT로!)
+        // 이미 학생으로 등록된 유저인지 체크하는 방어 로직이 있으면 더 좋네!
+        if (studentRepository.existsById(userId)) {
+            throw new CustomException(ErrorCode.INVALID_INPUT); // "이미 등록된 학생이라네!" 라는 의미
+        }
+
         user.updateRole(UserRole.STUDENT);
-        // Dirty Checking 덕분에 따로 save를 안 해도 트랜잭션이 끝날 때 반영된다네.
 
         // 3. 학생 상세 정보 저장
         Student student = Student.builder()
