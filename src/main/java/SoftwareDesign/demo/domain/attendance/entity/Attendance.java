@@ -39,4 +39,10 @@ public class Attendance extends BaseTimeEntity { // 생성일(created_at) 활용
         this.status = status;
         this.note = note;
     }
+
+    // 출석 상태 수정 메서드
+    public void updateStatus(AttendanceStatus status, String note) {
+        this.status = status;
+        this.note = note;
+    }
 }
