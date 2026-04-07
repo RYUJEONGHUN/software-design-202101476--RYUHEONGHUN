@@ -1,6 +1,7 @@
 package SoftwareDesign.demo.domain.student.service;
 
 import SoftwareDesign.demo.api.admin.dto.StudentCreateRequest;
+import SoftwareDesign.demo.api.student.dto.StudentResponse;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
 import SoftwareDesign.demo.domain.student.entity.Student;
@@ -45,4 +46,14 @@ public class StudentService {
 
         // 만약 여기서 에러가 나면? 권한 변경도 자동으로 취소(Rollback)된다네!
     }
+
+    @Transactional
+    public StudentResponse getStudentProfile(Long userid){
+
+        Student student = studentRepository.findById(userid)
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDENT_NOT_FOUND));
+
+        return new StudentResponse(student);
+    }
+
 }

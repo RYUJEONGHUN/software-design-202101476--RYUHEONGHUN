@@ -6,12 +6,9 @@ import SoftwareDesign.demo.domain.common.ApiResponse;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.SuccessCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
-import SoftwareDesign.demo.domain.student.entity.Student;
-import SoftwareDesign.demo.domain.student.repository.StudentRepository;
 import SoftwareDesign.demo.domain.student.service.StudentService;
 import SoftwareDesign.demo.domain.teacher.service.TeacherService;
 import SoftwareDesign.demo.domain.user.entity.User;
-import SoftwareDesign.demo.domain.user.entity.UserRole;
 import SoftwareDesign.demo.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor
-public class AdminController {
+public class AdminController implements AdminApi{
 
     private final UserRepository userRepository;
     private final StudentService studentService;
