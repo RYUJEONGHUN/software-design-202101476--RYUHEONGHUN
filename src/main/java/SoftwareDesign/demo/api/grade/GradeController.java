@@ -2,7 +2,6 @@ package SoftwareDesign.demo.api.grade;
 
 import SoftwareDesign.demo.api.grade.dto.GradeChartResponse;
 import SoftwareDesign.demo.api.grade.dto.GradeCreateRequest;
-import SoftwareDesign.demo.api.user.dto.UserResponse;
 import SoftwareDesign.demo.domain.common.ApiResponse;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.SuccessCode;
