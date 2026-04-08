@@ -28,7 +28,7 @@ public class StudentService {
 
         // 이미 학생으로 등록된 유저인지 체크하는 방어 로직이 있으면 더 좋네!
         if (studentRepository.existsById(userId)) {
-            throw new CustomException(ErrorCode.INVALID_INPUT); // "이미 등록된 학생이라네!" 라는 의미
+            throw new CustomException(ErrorCode.ALREADY_REGISTERED_STUDENT); // 이미 등록된 학생
         }
 
         user.updateRole(UserRole.STUDENT);
