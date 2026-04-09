@@ -31,6 +31,10 @@ public class TeacherService {
         Subject subject = subjectRepository.findByName(subjectName)
                 .orElseThrow(() -> new CustomException(ErrorCode.SUBJECT_NOT_FOUND));
 
+        // 이미 선생으로 등록된 유저인지 체크하는 방어 로직
+        if (teacherRepository.existsById(userId)) {
+            throw new CustomException(ErrorCode.ALREADY_REGISTERED_TEACHER); // 이미 등록된 선생
+        }
         // 3. 권한 변경
         user.updateRole(UserRole.TEACHER);
 
