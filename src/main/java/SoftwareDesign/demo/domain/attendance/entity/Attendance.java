@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "attendances")
 public class Attendance extends BaseTimeEntity { // 생성일(created_at) 활용을 위해!
 
     @Id
@@ -24,7 +25,7 @@ public class Attendance extends BaseTimeEntity { // 생성일(created_at) 활용
     private Student student;
 
     @Column(nullable = false)
-    private LocalDate attendanceDate; // 출석 날짜 (시간 제외)
+    private LocalDate date; // 출석 날짜 (시간 제외)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -33,9 +34,9 @@ public class Attendance extends BaseTimeEntity { // 생성일(created_at) 활용
     private String note; // 사유 (예: 병결, 체험학습 등)
 
     @Builder
-    public Attendance(Student student, LocalDate attendanceDate, AttendanceStatus status, String note) {
+    public Attendance(Student student, LocalDate date, AttendanceStatus status, String note) {
         this.student = student;
-        this.attendanceDate = attendanceDate;
+        this.date = date;
         this.status = status;
         this.note = note;
     }
