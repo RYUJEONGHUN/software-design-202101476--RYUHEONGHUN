@@ -1,8 +1,11 @@
 package SoftwareDesign.demo.domain.attendance.repository;
 
 import SoftwareDesign.demo.domain.attendance.entity.Attendance;
+import SoftwareDesign.demo.domain.attendance.entity.AttendanceStatus;
 import SoftwareDesign.demo.domain.student.entity.Student;
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -24,4 +27,9 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     Boolean existsByStudentAndDate(Student student,LocalDate today);
 
+
+    @Query("select a.student.studentNumber, count(a) from Attendance a " +
+            "where a.student.studentNumber in :studentNumbers and a.status = :status " +
+            "group by a.student.studentNumber")
+    List<Object[]> countByStudentNumbers(@Param("studentNumbers") List<String> studentNumbers, @Param("status") AttendanceStatus status);
 }
