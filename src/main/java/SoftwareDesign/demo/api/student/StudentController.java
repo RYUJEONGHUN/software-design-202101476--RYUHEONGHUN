@@ -1,6 +1,8 @@
 package SoftwareDesign.demo.api.student;
 
 import SoftwareDesign.demo.api.student.dto.StudentResponse;
+import SoftwareDesign.demo.api.student.dto.StudentSearchCondition;
+import SoftwareDesign.demo.api.student.dto.StudentSummaryResponse;
 import SoftwareDesign.demo.domain.common.ApiResponse;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.SuccessCode;
@@ -10,9 +12,14 @@ import SoftwareDesign.demo.domain.user.entity.User;
 import SoftwareDesign.demo.domain.user.entity.UserRole;
 import SoftwareDesign.demo.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/students")
@@ -39,5 +46,14 @@ public class StudentController implements StudentApi{
         // 3. 프로필 조회 및 반환
         StudentResponse response = studentService.getStudentProfile(id);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, response));
+    }
+
+    @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<Page<StudentSummaryResponse>>> search(
+            StudentSearchCondition condition, Pageable pageable) {
+
+        Page<StudentSummaryResponse> result = studentService.searchStudents(condition,pageable);
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, result));
     }
 }
