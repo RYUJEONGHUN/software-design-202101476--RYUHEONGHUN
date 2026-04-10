@@ -11,6 +11,7 @@ public enum ErrorCode {
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않구먼!"),
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 유저를 찾을 수 없네."),
     STUDENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 학생을 찾을 수 없네."),
+    TEACHER_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 선생을 찾을 수 없네."),
     SUBJECT_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 과목을 찾을 수 없네."),
     ALREADY_GRADE_EXIST(HttpStatus.BAD_REQUEST, "이미 이 학기에 해당 과목 성적이 등록되어 있구먼!"),
     ALREADY_REGISTERED_USER(HttpStatus.BAD_REQUEST, "해당 유저가 이미 있어"),
