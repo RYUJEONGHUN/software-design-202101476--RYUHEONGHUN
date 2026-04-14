@@ -1,5 +1,6 @@
 package SoftwareDesign.demo.api.admin;
 
+import SoftwareDesign.demo.api.admin.dto.ParentRegisterRequest;
 import SoftwareDesign.demo.api.admin.dto.StudentCreateRequest;
 import SoftwareDesign.demo.api.admin.dto.UserCreateRequest;
 import SoftwareDesign.demo.api.admin.dto.UserRoleUpdateRequest;
@@ -31,9 +32,15 @@ public interface AdminApi {
             @Parameter(description = "대상 유저 ID") Long id,
             @Parameter(description = "담당 과목명", example = "수학") String subject);
 
+    @Operation(summary = "학부모 상세 정보 등록", description = "학부모 등록")
+    @ApiResponse(responseCode = "201", description = "학부모 등록 완료")
+    ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<String>> registerParent(
+            @Parameter(description = "대상 유저 ID") Long id,
+            @RequestBody ParentRegisterRequest request);
+
 
     @Operation(summary = "유저 상세 정보 등록", description = "테스트 용 유저 등록")
-    @ApiResponse(responseCode = "201", description = "테스트 용 유저 등록 등록 완료")
+    @ApiResponse(responseCode = "201", description = "테스트 용 유저 등록 완료")
     ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<String>> registerUser(
             @RequestBody UserCreateRequest request);
 

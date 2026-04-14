@@ -1,23 +1,21 @@
 package SoftwareDesign.demo.api.admin;
 
+import SoftwareDesign.demo.api.admin.dto.ParentRegisterRequest;
 import SoftwareDesign.demo.api.admin.dto.StudentCreateRequest;
 import SoftwareDesign.demo.api.admin.dto.UserCreateRequest;
 import SoftwareDesign.demo.api.admin.dto.UserRoleUpdateRequest;
-import SoftwareDesign.demo.domain.attendance.entity.Attendance;
+import SoftwareDesign.demo.api.student.dto.StudentResponse;
 import SoftwareDesign.demo.domain.common.ApiResponse;
-import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.SuccessCode;
-import SoftwareDesign.demo.domain.common.exception.CustomException;
+import SoftwareDesign.demo.domain.parent.service.ParentService;
 import SoftwareDesign.demo.domain.student.service.StudentService;
 import SoftwareDesign.demo.domain.teacher.service.TeacherService;
-import SoftwareDesign.demo.domain.user.entity.User;
-import SoftwareDesign.demo.domain.user.entity.UserRole;
-import SoftwareDesign.demo.domain.user.repository.UserRepository;
 import SoftwareDesign.demo.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -27,7 +25,7 @@ public class AdminController implements AdminApi{
     private final StudentService studentService;
     private final TeacherService teacherService;
     private final UserService userService;
-
+    private final ParentService parentService;
 
     @PatchMapping("/users/{id}/role")
     public ResponseEntity<ApiResponse<String>> updateUserRole(
@@ -58,12 +56,23 @@ public class AdminController implements AdminApi{
             @RequestParam String subject) {
 
         teacherService.registerTeacher(id, subject);
+
         return ResponseEntity.status(SuccessCode.CREATE_SUCCESS.getHttpStatus())
                 .body(ApiResponse.success(SuccessCode.CREATE_SUCCESS, "선생님 등록 완료"));
     }
 
+    @PostMapping("/users/{id}/register-parent")
+    public ResponseEntity<ApiResponse<String>> registerParent(
+            @PathVariable Long id,
+            @RequestBody ParentRegisterRequest request) {
+
+        parentService.registerParent(id,request);
+
+        return ResponseEntity.status(SuccessCode.CREATE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.success(SuccessCode.CREATE_SUCCESS, "학부모 등록 완료"));
+    }
+
     //테스트 용 유저 등록
-    @Transactional
     @PostMapping("/users/register-user")
     public ResponseEntity<ApiResponse<String>> registerUser(
             @RequestBody UserCreateRequest request) {
@@ -72,6 +81,6 @@ public class AdminController implements AdminApi{
 
         return ResponseEntity.status(SuccessCode.CREATE_SUCCESS.getHttpStatus())
                 .body(ApiResponse.success(SuccessCode.CREATE_SUCCESS, "유저 등록 완료"));
-
     }
+
 }
