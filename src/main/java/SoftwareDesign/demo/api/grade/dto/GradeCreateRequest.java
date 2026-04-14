@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GradeCreateRequest {
     private Long studentId;
-    private Long subjectId;
     private int score;
     private String semester;
 }

@@ -21,9 +21,9 @@ public interface GradeApi {
             @ApiResponse(responseCode = "403", description = "권한 없음")
     })
     ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<String>> registerGrade(
-            @RequestBody GradeCreateRequest request);
+            @RequestBody GradeCreateRequest request, Authentication authentication);
 
-    @Operation(summary = "레이더 차트용 성적 조회", description = "특정 학기의 성적 데이터를 차트 형태로 가져오네.")
+    @Operation(summary = "레이더 차트용 성적 조회", description = "특정 학기의 성적(내 점수,반 평균,전체 평균) 데이터를 차트 형태로 가져오네.")
     ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<GradeChartResponse>> getMyGradeChart(
             @Parameter(description = "학생 ID") Long studentId,
             @Parameter(description = "조회할 학기") String semester,

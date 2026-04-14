@@ -27,10 +27,12 @@ public class GradeController implements GradeApi{
     // 성적 입력 (교사 권한)
     @PostMapping
     @PreAuthorize("hasRole('TEACHER')") // 시큐리티 설정이 되어있다면!
-    public ResponseEntity<ApiResponse<String>> registerGrade(@RequestBody GradeCreateRequest request) {
-        gradeService.registerGrade(request);
-        return ResponseEntity.status(SuccessCode.GRADE_REGISTER_SUCCESS.getHttpStatus())
-                .body(ApiResponse.success(SuccessCode.GRADE_UPDATE_SUCCESS, "성적이 아주 잘 들어갔구먼"));
+    public ResponseEntity<ApiResponse<String>> registerGrade(
+            @RequestBody GradeCreateRequest request,
+            Authentication authentication) {
+
+        gradeService.registerGrade(request, authentication.getName());
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.GRADE_REGISTER_SUCCESS, "성적이 등록되었네"));
     }
 
     // 레이더 차트용 성적 조회 (본인 혹은 교사)

@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,26 +18,34 @@ import java.util.stream.Collectors;
 public class GradeChartResponse {
     private String studentName;
     private String semester;
-    private Map<String, Integer> scores; // 예: {"국어": 90, "수학": 85}
-    private double average;              // 평균 점수
+    private Map<String, Integer> myScores;       // 내 점수
+    private Map<String, Double> classAverages;   // 우리 반 평균
+    private Map<String, Double> totalAverages;   // 전교 평균
 
-    public static GradeChartResponse of(Student student, String semester, List<Grade> grades) {
-        Map<String, Integer> scoreMap = grades.stream()
-                .collect(Collectors.toMap(
-                        g -> g.getSubject().getName(),
-                        Grade::getScore
-                ));
+    public static GradeChartResponse of(Student student, String semester,
+                                        List<Grade> myGrades,
+                                        Map<Long, Double> classAvgMap,
+                                        Map<Long, Double> totalAvgMap) {
 
-        double avg = grades.stream()
-                .mapToInt(Grade::getScore)
-                .average()
-                .orElse(0.0);
+        Map<String, Integer> myScoreMap = new HashMap<>();
+        Map<String, Double> classMap = new HashMap<>();
+        Map<String, Double> totalMap = new HashMap<>();
+
+        for (Grade g : myGrades) {
+            String subName = g.getSubject().getName();
+            Long subId = g.getSubject().getId();
+
+            myScoreMap.put(subName, g.getScore());
+            classMap.put(subName, classAvgMap.getOrDefault(subId, 0.0));
+            totalMap.put(subName, totalAvgMap.getOrDefault(subId, 0.0));
+        }
 
         return GradeChartResponse.builder()
                 .studentName(student.getUser().getName())
                 .semester(semester)
-                .scores(scoreMap)
-                .average(Math.round(avg * 100) / 100.0) // 소수점 둘째자리까지!
+                .myScores(myScoreMap)
+                .classAverages(classMap)
+                .totalAverages(totalMap)
                 .build();
     }
 }
