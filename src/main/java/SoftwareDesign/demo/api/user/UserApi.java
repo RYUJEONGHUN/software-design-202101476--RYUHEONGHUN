@@ -1,5 +1,6 @@
 package SoftwareDesign.demo.api.user;
 
+import SoftwareDesign.demo.api.student.dto.StudentResponse;
 import SoftwareDesign.demo.api.user.dto.MeResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -7,6 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+
+import java.util.List;
 
 @Tag(name = "User", description = "사용자 정보 및 인증 관련 API")
 public interface UserApi {
@@ -20,4 +23,10 @@ public interface UserApi {
     @ApiResponse(responseCode = "200", description = "정보 조회 성공")
     ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<MeResponse>> getMyInfo(
             @Parameter(hidden = true) Authentication authentication);
+
+    @Operation(summary = "학부모 자녀 검색", description = "로그인한 학부모의 자녀들을 검색")
+    @ApiResponse(responseCode = "200", description = "정보 조회 성공")
+    ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<List<StudentResponse>>> getMyChildren(
+            @Parameter(hidden = true) Authentication authentication);
+
 }
