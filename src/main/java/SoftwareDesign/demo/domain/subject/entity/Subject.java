@@ -20,9 +20,13 @@ public class Subject extends BaseTimeEntity {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @Column(nullable = false)
+    private int grade; //  1, 2, 3학년 구분 필드 추가!
+
     @Builder
-    public Subject(String name){
-        this.name=name;
+    public Subject(String name, int grade) {
+        this.name = name;
+        this.grade = grade;
     }
 
 
