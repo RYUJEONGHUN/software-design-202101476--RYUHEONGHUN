@@ -1,8 +1,10 @@
 package SoftwareDesign.demo.api.user;
 
+import SoftwareDesign.demo.api.student.dto.StudentResponse;
 import SoftwareDesign.demo.api.user.dto.MeResponse;
 import SoftwareDesign.demo.domain.common.ApiResponse;
 import SoftwareDesign.demo.domain.common.SuccessCode;
+import SoftwareDesign.demo.domain.parent.service.ParentService;
 import SoftwareDesign.demo.domain.student.repository.StudentRepository;
 import SoftwareDesign.demo.domain.teacher.repository.TeacherRepository;
 import SoftwareDesign.demo.domain.user.entity.User;
@@ -11,11 +13,14 @@ import SoftwareDesign.demo.domain.user.repository.UserRepository;
 import SoftwareDesign.demo.global.auth.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -26,7 +31,7 @@ public class UserController implements UserApi{
     private final JwtTokenProvider tokenProvider;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
-
+    private final ParentService parentService;
 
     @GetMapping("/test-token")
     public ResponseEntity<ApiResponse<String>> getTestToken(@RequestParam String email) {
@@ -70,5 +75,15 @@ public class UserController implements UserApi{
         }
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, builder.build()));
+    }
+
+    @GetMapping("/my-children")
+    @PreAuthorize("hasRole('PARENT')")
+    public ResponseEntity<ApiResponse<List<StudentResponse>>> getMyChildren(
+            Authentication authentication) {
+
+        List<StudentResponse> responses = parentService.getMyChildrenByEmail(authentication.getName());
+
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, responses));
     }
 }
