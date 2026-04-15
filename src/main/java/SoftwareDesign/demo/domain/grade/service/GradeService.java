@@ -6,6 +6,9 @@ import SoftwareDesign.demo.api.grade.dto.GradeChartResponse;
 import SoftwareDesign.demo.api.grade.dto.GradeCreateRequest;
 import SoftwareDesign.demo.domain.grade.entity.Grade;
 import SoftwareDesign.demo.domain.grade.repository.GradeRepository;
+import SoftwareDesign.demo.domain.notification.entity.NotificationType;
+import SoftwareDesign.demo.domain.notification.service.NotificationService;
+import SoftwareDesign.demo.domain.parent.repository.ParentRepository;
 import SoftwareDesign.demo.domain.student.entity.Student;
 import SoftwareDesign.demo.domain.student.repository.StudentRepository;
 import SoftwareDesign.demo.domain.subject.entity.Subject;
@@ -27,6 +30,8 @@ public class GradeService {
     private final GradeRepository gradeRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
+    private final NotificationService notificationService;
+    private final ParentRepository parentRepository;
 
     @Transactional
     public void registerGrade(GradeCreateRequest request,String teacherUsername) {
@@ -60,6 +65,22 @@ public class GradeService {
                 .build();
 
         gradeRepository.save(grade);
+
+        // 학생에게 알람 발송
+        notificationService.send(
+                student.getUser(),
+                NotificationType.GRADE_UPDATED,
+                "새로운 성적(" + request.getSemester() + ")이 등록되었습니다. 확인해 보세요!"
+        );
+
+        //  학부모에게 알림 발송
+        parentRepository.findByStudentId(student.getId()).ifPresent(parent -> {
+            notificationService.send(
+                    parent.getUser(),
+                    NotificationType.GRADE_UPDATED,
+                    student.getUser().getName() + " 학생의 새로운 성적 정보가 등록되었습니다."
+            );
+        });
     }
 
     public GradeChartResponse getGradeChart(Long studentId, String semester) {
