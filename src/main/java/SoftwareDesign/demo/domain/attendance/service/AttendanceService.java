@@ -3,6 +3,7 @@ package SoftwareDesign.demo.domain.attendance.service;
 import SoftwareDesign.demo.api.attendance.dto.AttendanceRequest;
 import SoftwareDesign.demo.api.attendance.dto.AttendanceSummaryResponse;
 import SoftwareDesign.demo.api.attendance.dto.AttendanceUpdateRequest;
+import SoftwareDesign.demo.api.notification.dto.AttendanceEvent;
 import SoftwareDesign.demo.api.student.dto.StudentResponse;
 import SoftwareDesign.demo.domain.attendance.entity.Attendance;
 import SoftwareDesign.demo.domain.attendance.entity.AttendanceStatus;
@@ -11,7 +12,9 @@ import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
 import SoftwareDesign.demo.domain.student.entity.Student;
 import SoftwareDesign.demo.domain.student.repository.StudentRepository;
+import SoftwareDesign.demo.global.config.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +30,10 @@ public class AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
     private final StudentRepository studentRepository;
+    private final RabbitTemplate rabbitTemplate;
 
-    /**
-     * 단건 오늘 출석 등록
-     */
+
+    // 단건 오늘 출석 등록
     @Transactional
     public void markAttendance(AttendanceRequest request) {
         LocalDate today = LocalDate.now();
@@ -49,11 +52,16 @@ public class AttendanceService {
                 .note(request.getNote())
                 .build();
         attendanceRepository.save(newAttendance);
+
+        //  RabbitMQ로 전송 (이름표 붙여서 던지기)
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.COMMON_EXCHANGE,
+                RabbitMQConfig.ATTENDANCE_ROUTING_KEY,
+                AttendanceEvent.from(newAttendance)
+        );
     }
 
-    /**
-     * 일괄 출석 등록
-     */
+    // 일괄 출석 등록
     @Transactional
     public void markBulkAttendance(List<AttendanceRequest> requests) {
         for (AttendanceRequest request : requests) {
@@ -88,15 +96,15 @@ public class AttendanceService {
 
     @Transactional(readOnly = true)
     public List<StudentResponse> getUnmarkedStudents(LocalDate date) {
-        // 1. 전교생 목록 조회
+        // 전교생 목록 조회
         List<Student> allStudents = studentRepository.findAll();
 
-        // 2. 해당 날짜에 출석 기록이 있는 학생 ID 추출
+        // 해당 날짜에 출석 기록이 있는 학생 ID 추출
         Set<Long> attendedStudentIds = attendanceRepository.findAllByDate(date).stream()
                 .map(a -> a.getStudent().getId())
                 .collect(Collectors.toSet());
 
-        // 3. 전체 학생 중 출석 기록이 없는 학생들만 필터링
+        // 전체 학생 중 출석 기록이 없는 학생들만 필터링
         return allStudents.stream()
                 .filter(s -> !attendedStudentIds.contains(s.getId()))
                 .map(StudentResponse::new)
@@ -123,7 +131,5 @@ public class AttendanceService {
 
         return new AttendanceSummaryResponse(present, tardy, absent, excused, Math.round(rate * 10) / 10.0);
     }
-
-
 
 }

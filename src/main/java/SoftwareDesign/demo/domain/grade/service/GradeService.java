@@ -1,5 +1,6 @@
 package SoftwareDesign.demo.domain.grade.service;
 
+import SoftwareDesign.demo.api.notification.dto.GradeEvent;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
 import SoftwareDesign.demo.api.grade.dto.GradeChartResponse;
@@ -15,7 +16,9 @@ import SoftwareDesign.demo.domain.subject.entity.Subject;
 import SoftwareDesign.demo.domain.subject.repository.SubjectRepository;
 import SoftwareDesign.demo.domain.teacher.entity.Teacher;
 import SoftwareDesign.demo.domain.teacher.repository.TeacherRepository;
+import SoftwareDesign.demo.global.config.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +33,8 @@ public class GradeService {
     private final GradeRepository gradeRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
-    private final NotificationService notificationService;
-    private final ParentRepository parentRepository;
+    private final RabbitTemplate rabbitTemplate;
+
 
     @Transactional
     public void registerGrade(GradeCreateRequest request,String teacherUsername) {
@@ -56,7 +59,7 @@ public class GradeService {
             throw new CustomException(ErrorCode.ALREADY_GRADE_EXIST);
         }
 
-        // 4. 성적 생성 및 저장
+        //  성적 생성 및 저장
         Grade grade = Grade.builder()
                 .student(student)
                 .subject(subject)
@@ -66,32 +69,23 @@ public class GradeService {
 
         gradeRepository.save(grade);
 
-        // 학생에게 알람 발송
-        notificationService.send(
-                student.getUser(),
-                NotificationType.GRADE_UPDATED,
-                "새로운 성적(" + request.getSemester() + ")이 등록되었습니다. 확인해 보세요!"
+        // 성적 알림 발송
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.COMMON_EXCHANGE,
+                RabbitMQConfig.GRADE_ROUTING_KEY,
+                GradeEvent.from(grade)
         );
-
-        //  학부모에게 알림 발송
-        parentRepository.findByStudentId(student.getId()).ifPresent(parent -> {
-            notificationService.send(
-                    parent.getUser(),
-                    NotificationType.GRADE_UPDATED,
-                    student.getUser().getName() + " 학생의 새로운 성적 정보가 등록되었습니다."
-            );
-        });
     }
 
     public GradeChartResponse getGradeChart(Long studentId, String semester) {
-        // 1. 학생 존재 확인
+        // 학생 존재 확인
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         int currentGrade = student.getGrade();
         int currentClass = student.getClassNum();
 
-        // 2. 내 성적 조회 (Fetch Join으로 최적화된 메서드 사용!)
+        // 내 성적 조회 (Fetch Join으로 최적화된 메서드 사용)
         List<Grade> myGrades = gradeRepository.findAllByStudentIdAndSemesterWithSubject(studentId, semester);
         //if (myGrades.isEmpty()) throw new CustomException(ErrorCode.DATA_NOT_FOUND);
 

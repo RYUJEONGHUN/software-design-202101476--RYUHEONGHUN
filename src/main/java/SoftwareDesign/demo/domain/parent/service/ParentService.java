@@ -52,7 +52,7 @@ public class ParentService {
                 throw new CustomException(ErrorCode.USER_NOT_FOUND);
             }
 
-            // 자녀 연결 (중간 테이블)
+            // 자녀 연결
             for (Student student : students) {
                 boolean isAlreadyAdded = parent.getChildren().stream()
                         .anyMatch(pc -> pc.getStudent().getId().equals(student.getId()));

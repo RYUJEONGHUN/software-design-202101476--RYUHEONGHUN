@@ -29,6 +29,9 @@ public enum ErrorCode {
     FORBIDDEN(HttpStatus.FORBIDDEN, "자네는 권한이 없구먼!"),
     NOT_TEACHER(HttpStatus.FORBIDDEN, "자네는 선생님이 아니라서 성적을 넣을 수 없네!"),
     NOT_STUDENT(HttpStatus.FORBIDDEN, "자네는 학생이 아니구먼!"),
+    NOT_YOUR_CHILD(HttpStatus.FORBIDDEN, "당신의 자녀가 아닙니다"),
+    NOT_YOUR_FEEDBACK(HttpStatus.FORBIDDEN, "당신이 작성한 피드백이 아닙니다"),
+    NOT_YOUR_NOTIFICATION(HttpStatus.FORBIDDEN,"당신의 알람이 아닙니다"),
     // 404 Not Found
     DATA_NOT_FOUND(HttpStatus.NOT_FOUND, "요청하신 데이터를 찾을 수 없구먼."),
     ATTENDANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "출석정보를 찾을 수 없다"),

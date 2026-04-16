@@ -17,3 +17,13 @@ services:
     container_name: school-redis
     ports:
       - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: school-rabbitmq
+    ports:
+      - "5672:5672"    # 애플리케이션 연결 포트
+      - "15672:15672"  # RabbitMQ 관리 페이지
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=password
