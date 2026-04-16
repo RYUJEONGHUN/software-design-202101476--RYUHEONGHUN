@@ -10,8 +10,6 @@ import SoftwareDesign.demo.domain.attendance.entity.AttendanceStatus;
 import SoftwareDesign.demo.domain.attendance.repository.AttendanceRepository;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
-import SoftwareDesign.demo.domain.notification.service.NotificationService;
-import SoftwareDesign.demo.domain.parent.repository.ParentRepository;
 import SoftwareDesign.demo.domain.student.entity.Student;
 import SoftwareDesign.demo.domain.student.repository.StudentRepository;
 import SoftwareDesign.demo.global.config.RabbitMQConfig;
@@ -32,8 +30,6 @@ public class AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
     private final StudentRepository studentRepository;
-    private final NotificationService notificationService;
-    private final ParentRepository parentRepository;
     private final RabbitTemplate rabbitTemplate;
 
 
@@ -59,7 +55,7 @@ public class AttendanceService {
 
         //  RabbitMQ로 전송 (이름표 붙여서 던지기)
         rabbitTemplate.convertAndSend(
-                RabbitMQConfig.ATTENDANCE_EXCHANGE,
+                RabbitMQConfig.COMMON_EXCHANGE,
                 RabbitMQConfig.ATTENDANCE_ROUTING_KEY,
                 AttendanceEvent.from(newAttendance)
         );
