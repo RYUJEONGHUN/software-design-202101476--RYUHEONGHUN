@@ -32,13 +32,13 @@ public class NotificationService {
     // 클라이언트가 SSE 연결을 위해 호출하는 메서드
 
     public SseEmitter subscribe(Long userId) {
-        // 1. 유효시간 설정 (보통 1시간)
+        // 유효시간 설정 (보통 1시간)
         SseEmitter emitter = new SseEmitter(60L * 1000 * 60);
 
-        // 2. 연결 저장
+        // 연결 저장
         emitters.put(userId, emitter);
 
-        // 3. 연결이 끝나거나 에러가 나면 리스트에서 삭제
+        // 연결이 끝나거나 에러가 나면 리스트에서 삭제
         emitter.onCompletion(() -> emitters.remove(userId));
         emitter.onTimeout(() -> emitters.remove(userId));
         emitter.onError((e) -> emitters.remove(userId));
@@ -56,8 +56,11 @@ public class NotificationService {
     }
 
     @Transactional
-    public void send(User receiver, NotificationType type, String message) {
-        // DB에 알림 저장 (나중에 로그인했을 때 모아보기 위함)
+    public void send(Long receiverId, NotificationType type, String message){
+        User receiver = userRepository.findById(receiverId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // DB에 알림 저장
         Notification notification = Notification.builder()
                 .receiver(receiver)
                 .type(type)
