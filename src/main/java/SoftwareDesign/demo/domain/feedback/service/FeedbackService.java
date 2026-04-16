@@ -3,12 +3,11 @@ package SoftwareDesign.demo.domain.feedback.service;
 import SoftwareDesign.demo.api.feedback.dto.FeedbackCreateRequest;
 import SoftwareDesign.demo.api.feedback.dto.FeedbackResponse;
 import SoftwareDesign.demo.api.feedback.dto.FeedbackUpdateRequest;
+import SoftwareDesign.demo.api.notification.dto.FeedbackEvent;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
 import SoftwareDesign.demo.domain.feedback.entity.Feedback;
 import SoftwareDesign.demo.domain.feedback.repository.FeedbackRepository;
-import SoftwareDesign.demo.domain.notification.entity.NotificationType;
-import SoftwareDesign.demo.domain.notification.service.NotificationService;
 import SoftwareDesign.demo.domain.parent.entity.Parent;
 import SoftwareDesign.demo.domain.parent.repository.ParentRepository;
 import SoftwareDesign.demo.domain.student.entity.Student;
@@ -17,7 +16,9 @@ import SoftwareDesign.demo.domain.teacher.entity.Teacher;
 import SoftwareDesign.demo.domain.teacher.repository.TeacherRepository;
 import SoftwareDesign.demo.domain.user.entity.User;
 import SoftwareDesign.demo.domain.user.repository.UserRepository;
+import SoftwareDesign.demo.global.config.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +34,7 @@ public class FeedbackService {
     private final TeacherRepository teacherRepository;
     private final ParentRepository parentRepository;
     private final UserRepository userRepository;
-    private final NotificationService notificationService;
+    private final RabbitTemplate rabbitTemplate;
 
     public void createFeedback(String email, FeedbackCreateRequest request) {
         User user = userRepository.findByUsername(email)
@@ -42,7 +43,7 @@ public class FeedbackService {
         Teacher teacher = teacherRepository.findById(user.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.TEACHER_NOT_FOUND));
 
-        // 2. 대상 학생 조회
+        // 대상 학생 조회
         Student student = studentRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new CustomException(ErrorCode.STUDENT_NOT_FOUND));
 
@@ -58,22 +59,11 @@ public class FeedbackService {
         feedbackRepository.save(feedback);
 
         // 학생에게 알림 발송
-        notificationService.send(
-                student.getUser(),
-                NotificationType.FEEDBACK_CREATED,
-                "선생님으로부터 새로운 피드백이 도착했습니다!"
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.COMMON_EXCHANGE,
+                RabbitMQConfig.FEEDBACK_ROUTING_KEY,
+                FeedbackEvent.from(feedback)
         );
-
-        if (feedback.isVisibleToParent()) {
-            // 매핑 테이블을 통해 부모님 찾기 & 해당 학부모에 알림 발송
-            parentRepository.findByStudentId(student.getId()).ifPresent(parent -> {
-                notificationService.send(
-                        parent.getUser(),
-                        NotificationType.FEEDBACK_CREATED,
-                        student.getUser().getName() + " 학생의 새로운 피드백이 등록되었습니다!"
-                );
-            });
-        }
     }
 
     @Transactional(readOnly = true)
