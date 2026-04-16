@@ -32,13 +32,13 @@ public class ConsultationController implements ConsultationApi{
 
     @PostMapping
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<ApiResponse<Long>> create(
+    public ResponseEntity<ApiResponse<String>> create(
             @RequestBody ConsultationRequest request,
             Authentication authentication) {
 
         String loginUserEmail = authentication.getName();
-        Long id = consultationService.createConsultation(request, loginUserEmail);
-        return ResponseEntity.ok(ApiResponse.success(SuccessCode.CREATE_SUCCESS, id));
+        consultationService.createConsultation(request, loginUserEmail);
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.CREATE_SUCCESS, "상담 내역이 성공적으로 등록"));
     }
 
     @GetMapping("/search")

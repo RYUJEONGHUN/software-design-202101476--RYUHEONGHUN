@@ -16,7 +16,7 @@ import java.util.List;
 @Tag(name = "Consultation", description = "상담 관리 API")
 public interface ConsultationApi {
     @Operation(summary = "상담 기록 등록", description = "선생님이 학생의 상담기록을 입력.")
-    public ResponseEntity<ApiResponse<Long>> create(
+    public ResponseEntity<ApiResponse<String>> create(
             @RequestBody ConsultationRequest request,
             Authentication authentication);
 

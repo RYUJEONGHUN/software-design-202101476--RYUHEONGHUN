@@ -7,6 +7,9 @@ import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
 import SoftwareDesign.demo.domain.consultation.entity.Consultation;
 import SoftwareDesign.demo.domain.consultation.repository.ConsultationRepository;
+import SoftwareDesign.demo.domain.notification.entity.NotificationType;
+import SoftwareDesign.demo.domain.notification.service.NotificationService;
+import SoftwareDesign.demo.domain.parent.repository.ParentRepository;
 import SoftwareDesign.demo.domain.student.entity.Student;
 import SoftwareDesign.demo.domain.student.repository.StudentRepository;
 import SoftwareDesign.demo.domain.teacher.entity.Teacher;
@@ -29,12 +32,12 @@ public class ConsultationService {
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
+    private final ParentRepository parentRepository;
 
-    /**
-     * 상담 기록 저장
-     */
+    // 상담 기록 저장
     @Transactional
-    public Long createConsultation(ConsultationRequest request, String userEmail) {
+    public void createConsultation(ConsultationRequest request, String userEmail) {
         User user = userRepository.findByUsername(userEmail)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -51,12 +54,27 @@ public class ConsultationService {
                 .nextPlan(request.getNextPlan())
                 .build();
 
-        return consultationRepository.save(consultation).getId();
-    }
-    /**
-     * 조건별 상담 내역 검색
-     */
+        consultationRepository.save(consultation);
 
+        // 학생에게 상담 등록 알림 발송
+        notificationService.send(
+                student.getUser().getId(),
+                NotificationType.CONSULTATION_UPDATED,
+                "새로운 상담내역(" + request.getConsultationDate() + ")이 등록되었습니다. 확인해 보세요!"
+        );
+
+        // 학부모에게 알림 발송
+        parentRepository.findByStudentId(student.getId()).ifPresent(parent -> {
+            notificationService.send(
+                    parent.getUser().getId(),
+                    NotificationType.CONSULTATION_UPDATED,
+                    student.getUser().getName() + " 학생의 새로운 상담 내역이 등록되었습니다."
+            );
+        });
+
+    }
+
+    // 조건별 상담 내역 검색
     public List<ConsultationResponse> searchConsultations(ConsultationSearchCondition condition) {
         return consultationRepository.search(condition).stream()
                 .map(ConsultationResponse::new)
