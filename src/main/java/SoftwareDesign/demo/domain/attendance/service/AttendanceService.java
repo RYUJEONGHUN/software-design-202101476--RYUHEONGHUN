@@ -1,12 +1,9 @@
 package SoftwareDesign.demo.domain.attendance.service;
 
-import SoftwareDesign.demo.api.attendance.dto.AttendanceRequest;
-import SoftwareDesign.demo.api.attendance.dto.AttendanceSummaryResponse;
-import SoftwareDesign.demo.api.attendance.dto.AttendanceUpdateRequest;
+import SoftwareDesign.demo.api.attendance.dto.*;
 import SoftwareDesign.demo.api.notification.dto.AttendanceEvent;
 import SoftwareDesign.demo.api.student.dto.StudentResponse;
 import SoftwareDesign.demo.domain.attendance.entity.Attendance;
-import SoftwareDesign.demo.domain.attendance.entity.AttendanceStatus;
 import SoftwareDesign.demo.domain.attendance.repository.AttendanceRepository;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
@@ -20,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,23 +31,25 @@ public class AttendanceService {
 
     // 단건 오늘 출석 등록
     @Transactional
-    public void markAttendance(AttendanceRequest request) {
-        LocalDate today = LocalDate.now();
+    public Long markAttendance(AttendanceRequest request) {
+        // 요청에 날짜가 있으면 그 날짜로, 없으면 오늘 날짜로 설정!
+        LocalDate targetDate = (request.getDate() != null) ? request.getDate() : LocalDate.now();
+
         Student student = studentRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new CustomException(ErrorCode.STUDENT_NOT_FOUND));
 
-        // 오늘 이미 기록이 있으면 에러
-        if (attendanceRepository.existsByStudentAndDate(student, today)) {
-            throw new CustomException(ErrorCode.ALREADY_ATTENDANCE_CHECKED); // 이미 체크됨
+        // 해당 날짜에 이미 기록이 있으면 에러
+        if (attendanceRepository.existsByStudentAndDate(student, targetDate)) {
+            throw new CustomException(ErrorCode.ALREADY_ATTENDANCE_CHECKED);
         }
 
         Attendance newAttendance = Attendance.builder()
                 .student(student)
-                .date(today)
+                .date(targetDate)
                 .status(request.getStatus())
                 .note(request.getNote())
                 .build();
-        attendanceRepository.save(newAttendance);
+        Attendance saved = attendanceRepository.save(newAttendance);
 
         //  RabbitMQ로 전송 (이름표 붙여서 던지기)
         rabbitTemplate.convertAndSend(
@@ -59,14 +57,16 @@ public class AttendanceService {
                 RabbitMQConfig.ATTENDANCE_ROUTING_KEY,
                 AttendanceEvent.from(newAttendance)
         );
+
+        return saved.getId();
     }
 
     // 일괄 출석 등록
     @Transactional
-    public void markBulkAttendance(List<AttendanceRequest> requests) {
-        for (AttendanceRequest request : requests) {
-            markAttendance(request); // 위에서 만든 로직을 재사용
-        }
+    public List<Long> markBulkAttendance(List<AttendanceRequest> requests) {
+        return requests.stream()
+                .map(this::markAttendance) // 위에서 수정한 메서드 재사용
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -79,34 +79,8 @@ public class AttendanceService {
     }
 
     @Transactional(readOnly = true)
-    public double calculateAttendanceRate(Long studentId) {
-        studentRepository.findById(studentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDENT_NOT_FOUND));
-
-        List<Attendance> records = attendanceRepository.findAllByStudentId(studentId);
-        if (records.isEmpty()) return 0.0;
-
-        // 결석(ABSENT)을 제외한 나머지를 출석으로 인정하는 간단한 계산.
-        long attendedDays = records.stream()
-                .filter(a -> a.getStatus() != AttendanceStatus.ABSENT)
-                .count();
-
-        return (double) attendedDays / records.size() * 100;
-    }
-
-    @Transactional(readOnly = true)
     public List<StudentResponse> getUnmarkedStudents(LocalDate date) {
-        // 전교생 목록 조회
-        List<Student> allStudents = studentRepository.findAll();
-
-        // 해당 날짜에 출석 기록이 있는 학생 ID 추출
-        Set<Long> attendedStudentIds = attendanceRepository.findAllByDate(date).stream()
-                .map(a -> a.getStudent().getId())
-                .collect(Collectors.toSet());
-
-        // 전체 학생 중 출석 기록이 없는 학생들만 필터링
-        return allStudents.stream()
-                .filter(s -> !attendedStudentIds.contains(s.getId()))
+        return attendanceRepository.findUnmarkedStudentsByDate(date).stream()
                 .map(StudentResponse::new)
                 .collect(Collectors.toList());
     }
@@ -119,27 +93,45 @@ public class AttendanceService {
         LocalDate start = LocalDate.of(year, month, 1);
         LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
 
+        // 해당 월의 카운트 정보만 요약해서 가져옴 (통계용)
+        AttendanceCount counts = attendanceRepository.getMonthlyCounts(studentId, start, end);
+
+        // 해당 월의 상세 리스트는 따로 가져옴 (리스트용)
         List<Attendance> records = attendanceRepository.findAllByStudentIdAndDateBetween(studentId, start, end);
 
-        long present = records.stream().filter(a -> a.getStatus() == AttendanceStatus.PRESENT).count();
-        long tardy = records.stream().filter(a -> a.getStatus() == AttendanceStatus.TARDY).count();
-        long absent = records.stream().filter(a -> a.getStatus() == AttendanceStatus.ABSENT).count();
-        long excused = records.stream().filter(a -> a.getStatus() == AttendanceStatus.EXCUSED).count();
-
-
-        double rate = records.isEmpty() ? 0.0 : (double) (present + excused) / records.size() * 100;
-
-        return new AttendanceSummaryResponse(present, tardy, absent, excused, Math.round(rate * 10) / 10.0);
+        return AttendanceSummaryResponse.builder()
+                .presentCount(counts.getPresentCount())
+                .tardyCount(counts.getTardyCount())
+                .absentCount(counts.getAbsentCount())
+                .excusedCount(counts.getExcusedCount())
+                .attendanceRate(calculateAdvancedRate(counts))
+                .records(records.stream().map(AttendanceRecordDto::new).collect(Collectors.toList()))
+                .build();
     }
 
     // 출석률 계산
-    public int calculateAdvancedRate(long present, long absent, long tardy, long excused) {
+    public int calculateAdvancedRate(AttendanceCount counts) {
+        long present = counts.getPresentCount();
+        long absent  = counts.getAbsentCount();
+        long tardy   = counts.getTardyCount();
+        long excused   = counts.getExcusedCount();
+
         long totalDays = present + absent + tardy + excused;
         if (totalDays == 0) return 0;
 
         // 지각, 조퇴도 일단 학교에 '온 것'이므로 분자에 더해줌
         long attendedDays = present + tardy + excused;
         return (int) ((double) attendedDays / totalDays * 100);
+    }
+
+
+    @Transactional(readOnly = true)
+    public double calculateAttendanceRate(Long studentId) {
+        // 1. DB에서 카운트 4개를 한 방에 긁어옴 (가장 빠름!)
+        AttendanceCount counts = attendanceRepository.getTotalCounts(studentId);
+
+        // 2. 미리 만들어둔 계산 로직 재활용
+        return (double) calculateAdvancedRate(counts);
     }
 
 }
