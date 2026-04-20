@@ -20,19 +20,19 @@ public interface AttendanceApi {
 
     @Operation(summary = "오늘 자 출석 등록", description = "학생의 오늘 날짜 출석 기록을 새로 생성.")
     @ApiResponse(responseCode = "200", description = "출석 처리 성공")
-    ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<String>> markSingleAttendance(
+    ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<Long>> markSingleAttendance(
             @RequestBody AttendanceRequest request);
+
+    @Operation(summary = "일괄 출석 체크", description = "선생님이 여러 학생의 출석 상태를 한 번에 등록하거나 수정.")
+    @ApiResponse(responseCode = "200", description = "일괄 출석 처리 완료")
+    ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<List<Long>>> markBulkAttendance(
+            @RequestBody List<AttendanceRequest> requests);
 
     @Operation(summary = "출석 기록 수정", description = "과거를 포함한 특정 출석 기록의 상태를 수정하네.")
     @ApiResponse(responseCode = "200", description = "출석기록 수정 완료")
     ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<String>> updateRecord(
             @PathVariable Long attendanceId,
             @RequestBody AttendanceUpdateRequest request);
-
-    @Operation(summary = "일괄 출석 체크", description = "선생님이 여러 학생의 출석 상태를 한 번에 등록하거나 수정.")
-    @ApiResponse(responseCode = "200", description = "일괄 출석 처리 완료")
-    ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<String>> markBulkAttendance(
-            @RequestBody List<AttendanceRequest> requests);
 
     @Operation(summary = "학생별 출석률 조회", description = "특정 학생의 전체 출석률(%)을 계산해서 반환.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
