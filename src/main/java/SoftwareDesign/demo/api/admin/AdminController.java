@@ -4,7 +4,6 @@ import SoftwareDesign.demo.api.admin.dto.ParentRegisterRequest;
 import SoftwareDesign.demo.api.admin.dto.StudentCreateRequest;
 import SoftwareDesign.demo.api.admin.dto.UserCreateRequest;
 import SoftwareDesign.demo.api.admin.dto.UserRoleUpdateRequest;
-import SoftwareDesign.demo.api.student.dto.StudentResponse;
 import SoftwareDesign.demo.domain.common.ApiResponse;
 import SoftwareDesign.demo.domain.common.SuccessCode;
 import SoftwareDesign.demo.domain.parent.service.ParentService;
@@ -13,7 +12,6 @@ import SoftwareDesign.demo.domain.teacher.service.TeacherService;
 import SoftwareDesign.demo.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
