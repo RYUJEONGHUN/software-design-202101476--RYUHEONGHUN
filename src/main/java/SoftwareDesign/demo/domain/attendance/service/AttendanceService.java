@@ -132,4 +132,14 @@ public class AttendanceService {
         return new AttendanceSummaryResponse(present, tardy, absent, excused, Math.round(rate * 10) / 10.0);
     }
 
+    // 출석률 계산
+    public int calculateAdvancedRate(long present, long absent, long tardy, long excused) {
+        long totalDays = present + absent + tardy + excused;
+        if (totalDays == 0) return 0;
+
+        // 지각, 조퇴도 일단 학교에 '온 것'이므로 분자에 더해줌
+        long attendedDays = present + tardy + excused;
+        return (int) ((double) attendedDays / totalDays * 100);
+    }
+
 }
