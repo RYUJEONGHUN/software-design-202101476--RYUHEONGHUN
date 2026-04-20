@@ -1,6 +1,6 @@
 package SoftwareDesign.demo.api.student;
 
-import SoftwareDesign.demo.api.student.dto.StudentResponse;
+import SoftwareDesign.demo.api.student.dto.StudentDetailResponse;
 import SoftwareDesign.demo.api.student.dto.StudentSearchCondition;
 import SoftwareDesign.demo.api.student.dto.StudentSummaryResponse;
 import SoftwareDesign.demo.domain.common.ApiResponse;
@@ -19,8 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/students")
 @RequiredArgsConstructor
@@ -30,21 +28,21 @@ public class StudentController implements StudentApi{
     private final StudentService studentService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<StudentResponse>> getStudentProfile(@PathVariable Long id, Authentication authentication) {
-        // 1. 현재 로그인한 유저 정보 가져오기
+    public ResponseEntity<ApiResponse<StudentDetailResponse>> getStudentProfile(@PathVariable Long id, Authentication authentication) {
+        //  현재 로그인한 유저 정보 가져오기
         String email = authentication.getName();
         User loginUser = userRepository.findByUsername(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // 2. 보안 체크
+        //  보안 체크
         if (loginUser.getRole() == UserRole.STUDENT) {
             // 학생이라면 본인 ID와 요청 ID가 일치해야 함
             if (!loginUser.getId().equals(id)) {
                 throw new CustomException(ErrorCode.FORBIDDEN); // 남의 프로필은 못 본다.
             }
         }
-        // 3. 프로필 조회 및 반환
-        StudentResponse response = studentService.getStudentProfile(id);
+        //  프로필 조회 및 반환
+        StudentDetailResponse response = studentService.getStudentProfile(id);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, response));
     }
 

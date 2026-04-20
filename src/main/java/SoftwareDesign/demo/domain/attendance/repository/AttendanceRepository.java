@@ -1,5 +1,6 @@
 package SoftwareDesign.demo.domain.attendance.repository;
 
+import SoftwareDesign.demo.api.attendance.dto.AttendanceCount;
 import SoftwareDesign.demo.domain.attendance.entity.Attendance;
 import SoftwareDesign.demo.domain.attendance.entity.AttendanceStatus;
 import SoftwareDesign.demo.domain.student.entity.Student;
@@ -23,6 +24,14 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     // 특정 학생의 모든 출석 기록
     List<Attendance> findAllByStudentId(Long studentId);
+
+    @Query("SELECT new SoftwareDesign.demo.api.attendance.dto.AttendanceCount(" +
+            "COALESCE(SUM(CASE WHEN a.status = 'PRESENT' THEN 1L ELSE 0L END), 0L), " +
+            "COALESCE(SUM(CASE WHEN a.status = 'ABSENT' THEN 1L ELSE 0L END), 0L), " +
+            "COALESCE(SUM(CASE WHEN a.status = 'TARDY' THEN 1L ELSE 0L END), 0L), " +
+            "COALESCE(SUM(CASE WHEN a.status = 'EXCUSED' THEN 1L ELSE 0L END), 0L)) " +
+            "FROM Attendance a WHERE a.student.id = :studentId")
+    AttendanceCount getTotalCounts(@Param("studentId") Long studentId);
 
 
     Boolean existsByStudentAndDate(Student student,LocalDate today);

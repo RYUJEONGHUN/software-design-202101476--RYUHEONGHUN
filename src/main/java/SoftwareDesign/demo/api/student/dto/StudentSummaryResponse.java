@@ -10,6 +10,7 @@ import lombok.Setter;
 @Setter
 public class StudentSummaryResponse {
     // 1. 기본 정보
+    private Long id;
     private String name;
     private String studentNumber;
     private Integer grade;
@@ -26,7 +27,8 @@ public class StudentSummaryResponse {
     private Double averageScore;
 
     @QueryProjection // Q클래스 생성 시 이 생성자도 포함되게 하네!
-    public StudentSummaryResponse(String name, String studentNumber, Integer grade, Integer classNum) {
+    public StudentSummaryResponse(Long id, String name, String studentNumber, Integer grade, Integer classNum) {
+        this.id = id;
         this.name = name;
         this.studentNumber = studentNumber;
         this.grade = grade;

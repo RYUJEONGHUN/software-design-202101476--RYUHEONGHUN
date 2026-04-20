@@ -1,7 +1,7 @@
 package SoftwareDesign.demo.api.student;
 
 
-import SoftwareDesign.demo.api.student.dto.StudentResponse;
+import SoftwareDesign.demo.api.student.dto.StudentDetailResponse;
 import SoftwareDesign.demo.api.student.dto.StudentSearchCondition;
 import SoftwareDesign.demo.api.student.dto.StudentSummaryResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,9 +20,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface StudentApi {
     @Operation(summary = "특정 학생 조회", description = "학생 프로필 조회")
     @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "400", description = "유저 없음"),
     })
-    ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<StudentResponse>> getStudentProfile(
+    ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<StudentDetailResponse>> getStudentProfile(
             @PathVariable Long id,
             Authentication authentication
     );
