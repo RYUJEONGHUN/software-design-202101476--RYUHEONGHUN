@@ -77,12 +77,9 @@ public class StudentService {
 
         // 출석률 계산
         AttendanceCount counts = attendanceRepository.getTotalCounts(studentId);
-        long present = counts.getPresentCount();
-        long absent  = counts.getAbsentCount();
-        long tardy   = counts.getTardyCount();
-        long excused   = counts.getExcusedCount();
 
-        int attendanceRate = attendanceService.calculateAdvancedRate(present, absent, tardy, excused);
+
+        int attendanceRate = attendanceService.calculateAdvancedRate(counts);
 
         //  성적 데이터 조회 (레이더 차트용 과목별 평균 등)
         List<SubjectScoreDto> scores = studentRepository.findRecentScoresByStudentId(studentId);
