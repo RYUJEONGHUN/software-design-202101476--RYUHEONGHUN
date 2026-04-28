@@ -13,19 +13,23 @@ import java.time.LocalDateTime;
 @Builder
 public class FeedbackResponse {
 
+    private Long id;
     private String teacherName;      // 선생님 이름
     private String studentName;      // 학생 이름
     private FeedbackCategory category;
     private String content;
     private LocalDateTime createdAt;
+    private boolean visibleToParent;
 
     public static FeedbackResponse from(Feedback feedback) {
         return FeedbackResponse.builder()
+                .id(feedback.getId())
                 .teacherName(feedback.getTeacher().getUser().getName()) // 연관관계 타고 들어가기
                 .studentName(feedback.getStudent().getUser().getName())
                 .category(feedback.getCategory())
                 .content(feedback.getContent())
                 .createdAt(feedback.getCreatedAt())
+                .visibleToParent(feedback.isVisibleToParent())
                 .build();
     }
 
