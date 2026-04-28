@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 public class NotificationConsumer {
 
     private final NotificationService notificationService;
-    private final StudentRepository studentRepository;
     private final ParentRepository parentRepository;
 
     // 출석 알림 처리
