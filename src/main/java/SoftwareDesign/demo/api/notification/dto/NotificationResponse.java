@@ -15,6 +15,7 @@ public class NotificationResponse {
     private String message;
     private String type;     // FEEDBACK_CREATED 등
     private String createdAt; // "2026-04-15 15:30" 형식으로 변환해서 주면 프론트가 좋아하네!
+    private boolean isRead;
 
     public static NotificationResponse from(Notification notification) {
         return NotificationResponse.builder()
@@ -23,6 +24,7 @@ public class NotificationResponse {
                 .type(notification.getType().name())
                 .createdAt(notification.getCreatedAt().format(
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .isRead(notification.isRead())
                 .build();
     }
 }

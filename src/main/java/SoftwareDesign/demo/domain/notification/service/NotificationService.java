@@ -75,7 +75,7 @@ public class NotificationService {
                 emitter.send(SseEmitter.event()
                         .id(notification.getId().toString())
                         .name("notification") // 이벤트 이름
-                        .data(message));      // 보낼 내용
+                        .data(NotificationResponse.from(notification)));      // 보낼 내용
             } catch (IOException e) {
                 // 연결이 끊겼다면 삭제
                 emitters.remove(receiver.getId());
