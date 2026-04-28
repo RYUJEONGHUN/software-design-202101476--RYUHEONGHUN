@@ -34,15 +34,15 @@ public class Consultation extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT")
     private String content; // 상담 내용
 
-    @Column(columnDefinition = "TEXT")
-    private String nextPlan; // 차기 계획
+    @Column(name = "next_plan_date", nullable = true)
+    private LocalDate nextPlanDate; // 다음 상담 날짜
 
     @Builder
-    public Consultation(Teacher teacher, Student student, LocalDate consultationDate, String content, String nextPlan) {
+    public Consultation(Teacher teacher, Student student, LocalDate consultationDate, String content, LocalDate nextPlanDate) {
         this.teacher = teacher;
         this.student = student;
         this.consultationDate = consultationDate;
         this.content = content;
-        this.nextPlan = nextPlan;
+        this.nextPlanDate = nextPlanDate;
     }
 }

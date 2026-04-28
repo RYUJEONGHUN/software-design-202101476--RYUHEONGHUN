@@ -54,7 +54,7 @@ public class ConsultationService {
                 .student(student)
                 .consultationDate(request.getConsultationDate())
                 .content(request.getContent())
-                .nextPlan(request.getNextPlan())
+                .nextPlanDate(request.getNextPlanDate())
                 .build();
 
         consultationRepository.save(consultation);

@@ -3,6 +3,7 @@ package SoftwareDesign.demo.api.consultation.dto;
 import SoftwareDesign.demo.domain.consultation.entity.Consultation;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,7 +17,10 @@ public class ConsultationResponse {
     private String teacherName;    // 상담 교사 이름
     private LocalDate consultationDate; // 상담 날짜
     private String content;        // 상담 내용
-    private String nextPlan;       // 다음 상담 계획
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate nextPlanDate;        // 다음 상담 날짜
+
     private LocalDateTime createdAt; // 기록 생성 시간
 
     /**
@@ -26,7 +30,7 @@ public class ConsultationResponse {
         this.id = consultation.getId();
         this.consultationDate = consultation.getConsultationDate();
         this.content = consultation.getContent();
-        this.nextPlan = consultation.getNextPlan();
+        this.nextPlanDate = consultation.getConsultationDate();
         this.createdAt = consultation.getCreatedAt();
 
         if (consultation.getStudent() != null && consultation.getStudent().getUser() != null) {
