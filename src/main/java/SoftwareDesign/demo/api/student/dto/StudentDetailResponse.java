@@ -16,7 +16,7 @@ public class StudentDetailResponse {
     private String studentNumber;
     private Integer grade;
     private Integer classNum;
-    private Integer attendanceRate; // 계산된 퍼센트
+    private Integer attendanceRate; // 계산된 퍼센트(레디스 사용)
 
     // 2. 성적 분석 (중단 레이더 차트용)
     // "국어: 80, 영어: 90..." 처럼 과목별 평균 혹은 최근 점수
