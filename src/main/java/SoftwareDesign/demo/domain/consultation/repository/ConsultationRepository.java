@@ -1,11 +1,13 @@
 package SoftwareDesign.demo.domain.consultation.repository;
 
 import SoftwareDesign.demo.domain.consultation.entity.Consultation;
+import SoftwareDesign.demo.domain.teacher.entity.Teacher;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,4 +19,16 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
             "               where c2.student.studentNumber in :studentNumbers " +
             "               group by c2.student.studentNumber)")
     List<Consultation> findLatestConsultationsByStudentNumber(@Param("studentNumbers") List<String> studentNumbers);
+
+    long countByTeacherAndNextPlanDateGreaterThanEqual(Teacher teacher, LocalDate date);
+
+
+    @Query("SELECT c FROM Consultation c " +
+            "JOIN FETCH c.student s " +   // Consultation -> Student 페치 조인
+            "JOIN FETCH s.user u " +      // Student -> User 페치 조인
+            "WHERE c.teacher = :teacher " +
+            "AND c.nextPlanDate >= :date " +
+            "ORDER BY c.nextPlanDate ASC")
+    List<Consultation> findAllByTeacherAndNextPlanDateGreaterThanEqualOrderByNextPlanDateAsc(Teacher teacher, LocalDate date);
+
 }
