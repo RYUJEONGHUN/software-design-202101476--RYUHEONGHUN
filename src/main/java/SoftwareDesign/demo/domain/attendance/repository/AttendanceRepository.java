@@ -23,6 +23,11 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
             "(SELECT 1 FROM Attendance a WHERE a.student = s AND a.date = :date)")
     List<Student> findUnmarkedStudentsByDate(@Param("date") LocalDate date);
 
+    @Query("SELECT COUNT(s) FROM Student s " +
+            "WHERE s.id NOT IN (" +
+            "  SELECT a.student.id FROM Attendance a WHERE a.date = :date" +
+            ")")
+    long countUnmarkedStudentsByDate(@Param("date") LocalDate date);
 
     @Query("SELECT new SoftwareDesign.demo.api.attendance.dto.AttendanceCount(" +
             "COALESCE(SUM(CASE WHEN a.status = 'PRESENT' THEN 1L ELSE 0L END), 0L), " +
