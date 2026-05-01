@@ -62,7 +62,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         // 프론트엔드로 AccessToken만 전달 (React 등 프론트 주소)
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login-success")
+        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/login-success")
                 .queryParam("accessToken", accessToken)
                 .build()
                 .toUriString();
