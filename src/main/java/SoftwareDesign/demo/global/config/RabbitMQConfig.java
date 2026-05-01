@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
+    public static final String COMMON_EXCHANGE = "common.exchange";
+
     // 출석용
     public static final String ATTENDANCE_QUEUE = "attendance.queue";
     public static final String ATTENDANCE_ROUTING_KEY = "attendance.key";
@@ -23,9 +25,6 @@ public class RabbitMQConfig {
     // 피드백용
     public static final String FEEDBACK_QUEUE = "feedback.queue";
     public static final String FEEDBACK_ROUTING_KEY = "feedback.key";
-
-    public static final String COMMON_EXCHANGE = "common.exchange";
-
 
     // 상담용
     public static final String CONSULTATION_QUEUE = "consultation.queue";

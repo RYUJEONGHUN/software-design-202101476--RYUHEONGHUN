@@ -46,6 +46,19 @@ public class StudentController implements StudentApi{
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, response));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<StudentDetailResponse>> getMyDashboard(Authentication authentication) {
+        // 현재 로그인한 유저의 이메일로 User 엔티티 조회
+        String email = authentication.getName();
+        User loginUser = userRepository.findByUsername(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 기존의 상세 조회 로직 재사용
+        StudentDetailResponse response = studentService.getStudentProfile(loginUser.getId());
+
+        return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, response));
+    }
+
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<ApiResponse<Page<StudentSummaryResponse>>> search(
@@ -54,4 +67,5 @@ public class StudentController implements StudentApi{
         Page<StudentSummaryResponse> result = studentService.searchStudents(condition,pageable);
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, result));
     }
+
 }

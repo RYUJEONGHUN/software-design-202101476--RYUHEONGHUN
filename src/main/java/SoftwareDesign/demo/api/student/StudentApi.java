@@ -28,6 +28,15 @@ public interface StudentApi {
             Authentication authentication
     );
 
+    @Operation(summary = "본인(학생) 조회", description = "학생 프로필 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "400", description = "유저 없음"),
+    })
+    ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<StudentDetailResponse>> getMyDashboard(
+            Authentication authentication);
+
+
     @Operation(summary = "학생 통합 검색 및 리스트 조회", description = "학년, 반, 이름 조건을 활용한 학생 목록 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공"),

@@ -24,9 +24,11 @@ import SoftwareDesign.demo.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,6 +43,8 @@ public class StudentService {
     private final AttendanceRepository attendanceRepository;
     private final GradeRepository gradeRepository;
     private final AttendanceService attendanceService;
+    private final StringRedisTemplate redisTemplate;
+
 
     @Transactional //
     public void registerStudent(Long userId, StudentCreateRequest request) {
@@ -75,11 +79,8 @@ public class StudentService {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.STUDENT_NOT_FOUND));
 
-        // 출석률 계산
-        AttendanceCount counts = attendanceRepository.getTotalCounts(studentId);
+        int attendanceRate = (int)getAttendanceRate(studentId);
 
-
-        int attendanceRate = attendanceService.calculateAdvancedRate(counts);
 
         //  성적 데이터 조회 (레이더 차트용 과목별 평균 등)
         List<SubjectScoreDto> scores = studentRepository.findRecentScoresByStudentId(studentId);
@@ -98,6 +99,25 @@ public class StudentService {
                 .recentFeedbacks(feedbacks)
                 .recentConsultations(consultations)
                 .build();
+    }
+
+    // 학생 출석률 계산
+    public double getAttendanceRate(Long studentId) {
+        String key = "student:rate:" + studentId;
+        String cachedRate = redisTemplate.opsForValue().get(key);
+
+        // 캐시에 데이터가 있다면 바로 반환
+        if (cachedRate != null) {
+            return Double.parseDouble(cachedRate);
+        }
+
+        // 캐시에 없다면? DB에서 계산해서 가져오기 (Cache Aside)
+        double dbRate = attendanceService.calculateAttendanceRate(studentId);
+
+        // 다음 조회를 위해 Redis에 다시 채워넣기
+        redisTemplate.opsForValue().set(key, String.valueOf(dbRate), Duration.ofDays(1));
+
+        return dbRate;
     }
 
     // 학생 통합 검색 및 조회 (기본 정보 리스트)
