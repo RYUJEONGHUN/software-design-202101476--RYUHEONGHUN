@@ -1,5 +1,6 @@
 package SoftwareDesign.demo.domain.grade.service;
 
+import SoftwareDesign.demo.api.grade.dto.GradeUpdateRequest;
 import SoftwareDesign.demo.api.notification.dto.GradeEvent;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
@@ -16,6 +17,9 @@ import SoftwareDesign.demo.domain.subject.entity.Subject;
 import SoftwareDesign.demo.domain.subject.repository.SubjectRepository;
 import SoftwareDesign.demo.domain.teacher.entity.Teacher;
 import SoftwareDesign.demo.domain.teacher.repository.TeacherRepository;
+import SoftwareDesign.demo.domain.user.entity.User;
+import SoftwareDesign.demo.domain.user.entity.UserRole;
+import SoftwareDesign.demo.domain.user.repository.UserRepository;
 import SoftwareDesign.demo.global.config.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -33,6 +37,7 @@ public class GradeService {
     private final GradeRepository gradeRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
+    private final UserRepository userRepository;
     private final RabbitTemplate rabbitTemplate;
 
 
@@ -110,5 +115,37 @@ public class GradeService {
                         obj -> (Long) obj[0], // Subject ID
                         obj -> Math.round((Double) obj[1] * 100) / 100.0 // 소수점 둘째자리
                 ));
+    }
+
+    @Transactional
+    public void updateGrade(Long gradeId, GradeUpdateRequest request, String teacherUsername) {
+        if (request.getScore() < 0 || request.getScore() > 100) {
+            throw new CustomException(ErrorCode.INVALID_SCORE);
+        }
+
+        User user = userRepository.findByUsername(teacherUsername)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Grade grade = gradeRepository.findById(gradeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_FOUND));
+
+        if (user.getRole() == UserRole.TEACHER) {
+            Teacher teacher = teacherRepository.findById(user.getId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.TEACHER_NOT_FOUND));
+
+            if (!grade.getSubject().getId().equals(teacher.getSubject().getId())) {
+                throw new CustomException(ErrorCode.FORBIDDEN);
+            }
+        } else if (user.getRole() != UserRole.ADMIN) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        grade.updateScore(request.getScore());
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.COMMON_EXCHANGE,
+                RabbitMQConfig.GRADE_ROUTING_KEY,
+                GradeEvent.from(grade)
+        );
     }
 }

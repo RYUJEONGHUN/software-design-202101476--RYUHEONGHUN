@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class SubjectScoreDto {
+    private Long gradeId;
     private String subjectName;
     private Integer score;
     private String semester;
