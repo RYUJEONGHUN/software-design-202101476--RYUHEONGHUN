@@ -1,7 +1,6 @@
 package SoftwareDesign.demo.domain.student.service;
 
 import SoftwareDesign.demo.api.admin.dto.StudentCreateRequest;
-import SoftwareDesign.demo.api.attendance.dto.AttendanceCount;
 import SoftwareDesign.demo.api.consultation.dto.ConsultationDto;
 import SoftwareDesign.demo.api.feedback.dto.FeedbackDto;
 import SoftwareDesign.demo.api.grade.dto.SubjectScoreDto;

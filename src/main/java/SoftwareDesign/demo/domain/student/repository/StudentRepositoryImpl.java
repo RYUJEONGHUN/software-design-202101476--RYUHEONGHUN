@@ -83,6 +83,7 @@ public class StudentRepositoryImpl implements StudentRepositoryCustom {
     public List<SubjectScoreDto> findRecentScoresByStudentId(Long studentId) {
         return queryFactory
                 .select(Projections.constructor(SubjectScoreDto.class,
+                        grade.id,
                         subject.name, // DTO의 첫 번째 인자: 과목명
                         grade.score, // DTO의 두 번째 인자: 점수
                         grade.semester
