@@ -19,7 +19,9 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     // 특정 학생의 특정 기간(한 달 등) 출석 기록 조회
     List<Attendance> findAllByStudentIdAndDateBetween(Long studentId, LocalDate startDate, LocalDate endDate);
 
-    @Query("SELECT s FROM Student s WHERE NOT EXISTS " +
+    @Query("SELECT s FROM Student s " +
+            "JOIN FETCH s.user " +
+            "WHERE NOT EXISTS " +
             "(SELECT 1 FROM Attendance a WHERE a.student = s AND a.date = :date)")
     List<Student> findUnmarkedStudentsByDate(@Param("date") LocalDate date);
 
