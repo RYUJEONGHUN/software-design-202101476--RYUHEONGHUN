@@ -8,6 +8,7 @@ import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.SuccessCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
 import SoftwareDesign.demo.domain.grade.service.GradeService;
+import SoftwareDesign.demo.domain.parent.service.ParentService;
 import SoftwareDesign.demo.domain.user.entity.User;
 import SoftwareDesign.demo.domain.user.entity.UserRole;
 import SoftwareDesign.demo.domain.user.repository.UserRepository;
@@ -24,6 +25,7 @@ public class GradeController implements GradeApi{
 
     private final GradeService gradeService;
     private final UserRepository userRepository;
+    private final ParentService parentService;
 
     // 성적 입력 (교사 권한)
     @PostMapping
@@ -50,12 +52,14 @@ public class GradeController implements GradeApi{
 
         // 2. 보안 대조
         if (user.getRole() == UserRole.STUDENT) {
-            // 로그인한 유저의 식별자와 요청한 studentId가 다르면 에러!
             if (!user.getId().equals(studentId)) {
-                throw new CustomException(ErrorCode.FORBIDDEN); // 남의 성적은 못 본다
+                throw new CustomException(ErrorCode.FORBIDDEN);
             }
-        }else if (user.getRole() != UserRole.TEACHER && user.getRole() != UserRole.ADMIN) {
-            // 학생도 아니고 선생님/관리자도 아니라면?
+        } else if (user.getRole() == UserRole.PARENT) {
+            if (!parentService.isMyChild(loginUserEmail, studentId)) {
+                throw new CustomException(ErrorCode.NOT_YOUR_CHILD);
+            }
+        } else if (user.getRole() != UserRole.TEACHER && user.getRole() != UserRole.ADMIN) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
