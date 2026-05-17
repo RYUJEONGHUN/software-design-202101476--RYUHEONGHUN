@@ -77,4 +77,16 @@ public class ParentService {
                 .collect(Collectors.toList());
     }
 
+    // 내 자녀인지 확인
+    @Transactional(readOnly = true)
+    public boolean isMyChild(String parentEmail, Long studentId) {
+        User user = userRepository.findByUsername(parentEmail)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Parent parent = parentRepository.findByIdWithChildren(user.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.PARENT_NOT_FOUND));
+
+        return parent.getChildren().stream()
+                .anyMatch(parentChild -> parentChild.getStudent().getId().equals(studentId));
+    }
 }
