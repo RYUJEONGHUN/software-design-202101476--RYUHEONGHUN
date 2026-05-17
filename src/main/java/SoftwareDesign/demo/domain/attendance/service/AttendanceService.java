@@ -190,6 +190,24 @@ public class AttendanceService {
         return (double) calculateAdvancedRate(counts);
     }
 
+    // 학생 출석률 계산
+    public double getAttendanceRate(Long studentId) {
+        String key = "student:rate:" + studentId;
+        String cachedRate = redisTemplate.opsForValue().get(key);
+
+        // 캐시에 데이터가 있다면 바로 반환
+        if (cachedRate != null) {
+            return Double.parseDouble(cachedRate);
+        }
+
+        // 캐시에 없다면? DB에서 계산해서 가져오기 (Cache Aside)
+        double dbRate = calculateAttendanceRate(studentId);
+
+        // 다음 조회를 위해 Redis에 다시 채워넣기
+        redisTemplate.opsForValue().set(key, String.valueOf(dbRate), Duration.ofDays(1));
+
+        return dbRate;
+    }
 
     public void cacheAttendanceRate(Long studentId) {
         //  기존 DB 통계 로직 호출

@@ -3,6 +3,7 @@ package SoftwareDesign.demo.api.teacher;
 
 import SoftwareDesign.demo.api.teacher.dto.ScheduledConsultationDto;
 import SoftwareDesign.demo.api.teacher.dto.TeacherDashboardResponse;
+import SoftwareDesign.demo.domain.attendance.service.AttendanceService;
 import SoftwareDesign.demo.domain.common.ApiResponse;
 import SoftwareDesign.demo.domain.common.SuccessCode;
 import SoftwareDesign.demo.domain.student.service.StudentService;
@@ -24,7 +25,7 @@ import java.util.List;
 public class TeacherController implements TeacherApi {
 
     private final TeacherService teacherService;
-    private final StudentService studentService;
+    private final AttendanceService attendanceService;
 
     // 대시보드 메인 데이터 (이름, 과목, 카운트 등)
     @GetMapping("/me/dashboard")
@@ -49,7 +50,7 @@ public class TeacherController implements TeacherApi {
     @GetMapping("/students/{studentId}/attendance-rate")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<Double>> getStudentAttendanceRate(@PathVariable Long studentId) {
-        double rate = studentService.getAttendanceRate(studentId);
+        double rate = attendanceService.getAttendanceRate(studentId);
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, rate));
     }
