@@ -3,6 +3,7 @@ package SoftwareDesign.demo.domain.consultation.repository;
 
 import SoftwareDesign.demo.api.consultation.dto.ConsultationSearchCondition;
 import SoftwareDesign.demo.domain.consultation.entity.Consultation;
+import SoftwareDesign.demo.domain.user.entity.QUser;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +23,17 @@ public class ConsultationRepositoryImpl implements ConsultationRepositoryCustom 
 
     @Override
     public List<Consultation> search(ConsultationSearchCondition condition) {
+
+        QUser studentUser = new QUser("studentUser");
+        QUser teacherUser = new QUser("teacherUser");
+
         // Q클래스 호출 (QConsultation.consultation)
         return queryFactory
                 .selectFrom(consultation)
                 .leftJoin(consultation.student, student).fetchJoin() // 페치 조인으로 성능 최적화
+                .leftJoin(student.user, studentUser).fetchJoin()
                 .leftJoin(consultation.teacher, teacher).fetchJoin()
+                .leftJoin(teacher.user, teacherUser).fetchJoin()
                 .where(
                         studentNameEq(condition.getStudentName()),
                         teacherNameEq(condition.getTeacherName()),
