@@ -18,34 +18,48 @@ import java.util.stream.Collectors;
 public class GradeChartResponse {
     private String studentName;
     private String semester;
-    private Map<String, Integer> myScores;       // 내 점수
-    private Map<String, Double> classAverages;   // 우리 반 평균
-    private Map<String, Double> totalAverages;   // 전교 평균
+    private int totalScore;
+    private double averageScore;
+    private String overallGrade;
+
+    private List<GradeScoreDto> scores;
 
     public static GradeChartResponse of(Student student, String semester,
                                         List<Grade> myGrades,
                                         Map<Long, Double> classAvgMap,
                                         Map<Long, Double> totalAvgMap) {
 
-        Map<String, Integer> myScoreMap = new HashMap<>();
-        Map<String, Double> classMap = new HashMap<>();
-        Map<String, Double> totalMap = new HashMap<>();
+        int totalScore = myGrades.stream()
+                .mapToInt(Grade::getScore)
+                .sum();
 
-        for (Grade g : myGrades) {
-            String subName = g.getSubject().getName();
-            Long subId = g.getSubject().getId();
+        double averageScore = myGrades.isEmpty()
+                ? 0.0
+                : Math.round(((double) totalScore / myGrades.size()) * 100) / 100.0;
 
-            myScoreMap.put(subName, g.getScore());
-            classMap.put(subName, classAvgMap.getOrDefault(subId, 0.0));
-            totalMap.put(subName, totalAvgMap.getOrDefault(subId, 0.0));
-        }
+        List<GradeScoreDto> scores = myGrades.stream()
+                .map(grade -> GradeScoreDto.from(
+                        grade,
+                        classAvgMap.getOrDefault(grade.getSubject().getId(), 0.0),
+                        totalAvgMap.getOrDefault(grade.getSubject().getId(), 0.0)
+                ))
+                .toList();
 
         return GradeChartResponse.builder()
                 .studentName(student.getUser().getName())
                 .semester(semester)
-                .myScores(myScoreMap)
-                .classAverages(classMap)
-                .totalAverages(totalMap)
+                .totalScore(totalScore)
+                .averageScore(averageScore)
+                .overallGrade(calculateOverallGrade(averageScore))
+                .scores(scores)
                 .build();
+    }
+
+    private static String calculateOverallGrade(double averageScore) {
+        if (averageScore >= 90) return "A";
+        if (averageScore >= 80) return "B";
+        if (averageScore >= 70) return "C";
+        if (averageScore >= 60) return "D";
+        return "F";
     }
 }
