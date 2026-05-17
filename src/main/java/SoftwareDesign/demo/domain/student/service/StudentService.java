@@ -42,7 +42,6 @@ public class StudentService {
     private final AttendanceRepository attendanceRepository;
     private final GradeRepository gradeRepository;
     private final AttendanceService attendanceService;
-    private final StringRedisTemplate redisTemplate;
 
 
     @Transactional //
@@ -78,7 +77,7 @@ public class StudentService {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.STUDENT_NOT_FOUND));
 
-        int attendanceRate = (int)getAttendanceRate(studentId);
+        int attendanceRate = (int) attendanceService.getAttendanceRate(studentId);
 
 
         //  성적 데이터 조회 (레이더 차트용 과목별 평균 등)
@@ -100,24 +99,6 @@ public class StudentService {
                 .build();
     }
 
-    // 학생 출석률 계산
-    public double getAttendanceRate(Long studentId) {
-        String key = "student:rate:" + studentId;
-        String cachedRate = redisTemplate.opsForValue().get(key);
-
-        // 캐시에 데이터가 있다면 바로 반환
-        if (cachedRate != null) {
-            return Double.parseDouble(cachedRate);
-        }
-
-        // 캐시에 없다면? DB에서 계산해서 가져오기 (Cache Aside)
-        double dbRate = attendanceService.calculateAttendanceRate(studentId);
-
-        // 다음 조회를 위해 Redis에 다시 채워넣기
-        redisTemplate.opsForValue().set(key, String.valueOf(dbRate), Duration.ofDays(1));
-
-        return dbRate;
-    }
 
     // 학생 통합 검색 및 조회 (기본 정보 리스트)
     public Page<StudentSummaryResponse> searchStudents(StudentSearchCondition condition, Pageable pageable) {
