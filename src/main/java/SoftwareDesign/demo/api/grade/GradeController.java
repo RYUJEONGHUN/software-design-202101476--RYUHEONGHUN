@@ -2,6 +2,7 @@ package SoftwareDesign.demo.api.grade;
 
 import SoftwareDesign.demo.api.grade.dto.GradeChartResponse;
 import SoftwareDesign.demo.api.grade.dto.GradeCreateRequest;
+import SoftwareDesign.demo.api.grade.dto.GradeUpdateRequest;
 import SoftwareDesign.demo.domain.common.ApiResponse;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.SuccessCode;
@@ -62,5 +63,20 @@ public class GradeController implements GradeApi{
         GradeChartResponse response = gradeService.getGradeChart(studentId, semester);
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, response));
+    }
+
+    @PatchMapping("/{gradeId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<String>> updateGrade(
+            @PathVariable Long gradeId,
+            @RequestBody GradeUpdateRequest request,
+            Authentication authentication) {
+
+        gradeService.updateGrade(gradeId, request, authentication.getName());
+
+        return ResponseEntity.ok(ApiResponse.success(
+                SuccessCode.GRADE_UPDATE_SUCCESS,
+                "성적이 수정되었습니다."
+        ));
     }
 }
