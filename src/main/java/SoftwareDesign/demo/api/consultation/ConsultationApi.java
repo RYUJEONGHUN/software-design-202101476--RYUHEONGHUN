@@ -4,11 +4,13 @@ package SoftwareDesign.demo.api.consultation;
 import SoftwareDesign.demo.api.consultation.dto.ConsultationRequest;
 import SoftwareDesign.demo.api.consultation.dto.ConsultationResponse;
 import SoftwareDesign.demo.api.consultation.dto.ConsultationSearchCondition;
+import SoftwareDesign.demo.api.consultation.dto.ConsultationUpdateRequest;
 import SoftwareDesign.demo.domain.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -24,4 +26,10 @@ public interface ConsultationApi {
     public ResponseEntity<ApiResponse<List<ConsultationResponse>>> search(
             ConsultationSearchCondition condition);
 
+    @Operation(summary = "상담 내역 수정", description = "교사가 자신이 작성한 상담 내역을 수정합니다.")
+    ResponseEntity<ApiResponse<String>> update(
+            @PathVariable Long consultationId,
+            @RequestBody ConsultationUpdateRequest request,
+            Authentication authentication
+    );
 }

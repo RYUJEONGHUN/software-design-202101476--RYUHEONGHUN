@@ -3,6 +3,7 @@ package SoftwareDesign.demo.api.consultation;
 import SoftwareDesign.demo.api.consultation.dto.ConsultationRequest;
 import SoftwareDesign.demo.api.consultation.dto.ConsultationResponse;
 import SoftwareDesign.demo.api.consultation.dto.ConsultationSearchCondition;
+import SoftwareDesign.demo.api.consultation.dto.ConsultationUpdateRequest;
 import SoftwareDesign.demo.domain.common.ApiResponse;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.SuccessCode;
@@ -49,5 +50,24 @@ public class ConsultationController implements ConsultationApi{
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCode.GET_SUCCESS,
                 consultationService.searchConsultations(condition)));
+    }
+
+    @PatchMapping("/{consultationId}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<ApiResponse<String>> update(
+            @PathVariable Long consultationId,
+            @RequestBody ConsultationUpdateRequest request,
+            Authentication authentication) {
+
+        consultationService.updateConsultation(
+                consultationId,
+                request,
+                authentication.getName()
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(
+                SuccessCode.UPDATE_SUCCESS,
+                "상담 내역이 수정되었습니다."
+        ));
     }
 }

@@ -45,4 +45,15 @@ public class Consultation extends BaseTimeEntity {
         this.content = content;
         this.nextPlanDate = nextPlanDate;
     }
+    public void update(LocalDate consultationDate, String content, LocalDate nextPlanDate) {
+        if (consultationDate != null) {
+            this.consultationDate = consultationDate;
+        }
+        if (content != null && !content.isBlank()) {
+            this.content = content;
+        }
+        if (nextPlanDate != null) {
+            this.nextPlanDate = nextPlanDate;
+        }
+    }
 }

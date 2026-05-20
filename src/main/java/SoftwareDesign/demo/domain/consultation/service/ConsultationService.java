@@ -3,6 +3,7 @@ package SoftwareDesign.demo.domain.consultation.service;
 import SoftwareDesign.demo.api.consultation.dto.ConsultationRequest;
 import SoftwareDesign.demo.api.consultation.dto.ConsultationResponse;
 import SoftwareDesign.demo.api.consultation.dto.ConsultationSearchCondition;
+import SoftwareDesign.demo.api.consultation.dto.ConsultationUpdateRequest;
 import SoftwareDesign.demo.api.notification.dto.ConsultationEvent;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
@@ -73,6 +74,30 @@ public class ConsultationService {
         return consultationRepository.search(condition).stream()
                 .map(ConsultationResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updateConsultation(Long consultationId, ConsultationUpdateRequest request, String teacherEmail) {
+        User user = userRepository.findByUsername(teacherEmail)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Consultation consultation = consultationRepository.findById(consultationId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CONSULTATION_NOT_FOUND));
+
+        if (!consultation.getTeacher().getId().equals(user.getId())) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        consultation.update(
+                request.getConsultationDate(),
+                request.getContent(),
+                request.getNextPlanDate()
+        );
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.COMMON_EXCHANGE,
+                RabbitMQConfig.CONSULTATION_ROUTING_KEY,
+                ConsultationEvent.from(consultation)
+        );
     }
 }
 
