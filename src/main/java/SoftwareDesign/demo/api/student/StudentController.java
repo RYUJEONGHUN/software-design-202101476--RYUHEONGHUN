@@ -1,8 +1,6 @@
 package SoftwareDesign.demo.api.student;
 
-import SoftwareDesign.demo.api.student.dto.StudentDetailResponse;
-import SoftwareDesign.demo.api.student.dto.StudentSearchCondition;
-import SoftwareDesign.demo.api.student.dto.StudentSummaryResponse;
+import SoftwareDesign.demo.api.student.dto.*;
 import SoftwareDesign.demo.domain.common.ApiResponse;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.SuccessCode;
@@ -18,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/students")
@@ -68,4 +68,25 @@ public class StudentController implements StudentApi{
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, result));
     }
 
+    @GetMapping("/{studentId}/records")
+    public ResponseEntity<ApiResponse<List<StudentRecordResponse>>> getStudentRecords(
+            @PathVariable Long studentId) {
+
+        return ResponseEntity.ok(ApiResponse.success(
+                SuccessCode.GET_SUCCESS,
+                studentService.getStudentRecords(studentId)
+        ));
+    }
+
+    @PatchMapping("/{studentId}/records")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<StudentRecordResponse>> upsertStudentRecord(
+            @PathVariable Long studentId,
+            @RequestBody StudentRecordRequest request) {
+
+        return ResponseEntity.ok(ApiResponse.success(
+                SuccessCode.UPDATE_SUCCESS,
+                studentService.upsertStudentRecord(studentId, request)
+        ));
+    }
 }
