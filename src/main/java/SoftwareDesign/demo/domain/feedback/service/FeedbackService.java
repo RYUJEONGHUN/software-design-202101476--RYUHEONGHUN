@@ -2,6 +2,7 @@ package SoftwareDesign.demo.domain.feedback.service;
 
 import SoftwareDesign.demo.api.feedback.dto.FeedbackCreateRequest;
 import SoftwareDesign.demo.api.feedback.dto.FeedbackResponse;
+import SoftwareDesign.demo.api.feedback.dto.FeedbackSearchCondition;
 import SoftwareDesign.demo.api.feedback.dto.FeedbackUpdateRequest;
 import SoftwareDesign.demo.api.notification.dto.FeedbackEvent;
 import SoftwareDesign.demo.domain.common.ErrorCode;
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -67,7 +67,7 @@ public class FeedbackService {
     }
 
     @Transactional(readOnly = true)
-    public List<FeedbackResponse> getFeedbacksForParent(String email, Long studentId) {
+    public List<FeedbackResponse> getFeedbacksForParent(String email, Long studentId, FeedbackSearchCondition condition) {
         User user = userRepository.findByUsername(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -81,19 +81,22 @@ public class FeedbackService {
             throw new CustomException(ErrorCode.NOT_YOUR_CHILD);
         }
         // 공개된 피드백만 조회
-        return feedbackRepository.findByStudentIdAndIsVisibleToParentTrue(studentId)
+        return feedbackRepository.searchForParent(studentId, condition)
                 .stream()
                 .map(FeedbackResponse::from)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // 해당학생의 모든 피드백 가져오기
     @Transactional(readOnly = true)
-    public List<FeedbackResponse> getFeedbacksForStaff(Long studentId) {
-        return feedbackRepository.findAllByStudentId(studentId)
+    public List<FeedbackResponse> getFeedbacksForStaff(
+            Long studentId,
+            FeedbackSearchCondition condition
+    ) {
+        return feedbackRepository.searchForStaff(studentId, condition)
                 .stream()
                 .map(FeedbackResponse::from)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
@@ -102,7 +105,7 @@ public class FeedbackService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Feedback feedback = feedbackRepository.findById(feedbackId)
-                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.FEEDBACK_NOT_FOUND));
 
         //자기가 작성한 피드백인지 확인(선생)
         if (!feedback.getTeacher().getId().equals(user.getId())) {
@@ -112,4 +115,6 @@ public class FeedbackService {
         // 더티 체킹으로 반영
         feedback.updateContent(request.getContent(), request.getCategory(), request.isVisibleToParent());
     }
+
+
 }
