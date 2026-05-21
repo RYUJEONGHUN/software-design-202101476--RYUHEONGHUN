@@ -30,7 +30,7 @@ public class ConsultationResponse {
         this.id = consultation.getId();
         this.consultationDate = consultation.getConsultationDate();
         this.content = consultation.getContent();
-        this.nextPlanDate = consultation.getConsultationDate();
+        this.nextPlanDate = consultation.getNextPlanDate();
         this.createdAt = consultation.getCreatedAt();
 
         if (consultation.getStudent() != null && consultation.getStudent().getUser() != null) {
