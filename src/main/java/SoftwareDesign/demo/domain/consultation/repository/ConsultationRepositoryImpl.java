@@ -35,6 +35,7 @@ public class ConsultationRepositoryImpl implements ConsultationRepositoryCustom 
                 .leftJoin(consultation.teacher, teacher).fetchJoin()
                 .leftJoin(teacher.user, teacherUser).fetchJoin()
                 .where(
+                        studentIdEq(condition.getStudentId()),
                         studentNameEq(condition.getStudentName()),
                         teacherNameEq(condition.getTeacherName()),
                         contentContains(condition.getKeyword()),
@@ -45,6 +46,10 @@ public class ConsultationRepositoryImpl implements ConsultationRepositoryCustom 
     }
 
     // --- 아래는 동적 쿼리를 위한 BooleanExpression 메서드들이라네 ---
+
+    private BooleanExpression studentIdEq(Long studentId) {
+        return studentId != null ? student.id.eq(studentId) : null;
+    }
 
     private BooleanExpression studentNameEq(String studentName) {
         return hasText(studentName) ? student.user.name.eq(studentName) : null;

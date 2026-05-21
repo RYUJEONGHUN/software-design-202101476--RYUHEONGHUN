@@ -4,9 +4,7 @@ import SoftwareDesign.demo.api.admin.dto.StudentCreateRequest;
 import SoftwareDesign.demo.api.consultation.dto.ConsultationDto;
 import SoftwareDesign.demo.api.feedback.dto.FeedbackDto;
 import SoftwareDesign.demo.api.grade.dto.SubjectScoreDto;
-import SoftwareDesign.demo.api.student.dto.StudentDetailResponse;
-import SoftwareDesign.demo.api.student.dto.StudentSearchCondition;
-import SoftwareDesign.demo.api.student.dto.StudentSummaryResponse;
+import SoftwareDesign.demo.api.student.dto.*;
 import SoftwareDesign.demo.domain.attendance.entity.AttendanceStatus;
 import SoftwareDesign.demo.domain.attendance.repository.AttendanceRepository;
 import SoftwareDesign.demo.domain.attendance.service.AttendanceService;
@@ -17,17 +15,16 @@ import SoftwareDesign.demo.domain.consultation.repository.ConsultationRepository
 import SoftwareDesign.demo.domain.grade.repository.GradeRepository;
 import SoftwareDesign.demo.domain.student.entity.Student;
 import SoftwareDesign.demo.domain.student.repository.StudentRepository;
+import SoftwareDesign.demo.domain.studentrecord.entity.StudentRecord;
+import SoftwareDesign.demo.domain.studentrecord.repository.StudentRecordRepository;
 import SoftwareDesign.demo.domain.user.entity.User;
 import SoftwareDesign.demo.domain.user.entity.UserRole;
 import SoftwareDesign.demo.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -42,7 +39,7 @@ public class StudentService {
     private final AttendanceRepository attendanceRepository;
     private final GradeRepository gradeRepository;
     private final AttendanceService attendanceService;
-
+    private final StudentRecordRepository studentRecordRepository;
 
     @Transactional //
     public void registerStudent(Long userId, StudentCreateRequest request) {
@@ -141,4 +138,41 @@ public class StudentService {
         return pageResult;
     }
 
+    @Transactional(readOnly = true)
+    public List<StudentRecordResponse> getStudentRecords(Long studentId) {
+        studentRepository.findById(studentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDENT_NOT_FOUND));
+
+        return studentRecordRepository.findAllByStudentIdOrderBySchoolYearDescSemesterDesc(studentId)
+                .stream()
+                .map(StudentRecordResponse::from)
+                .toList();
+    }
+
+    @Transactional
+    public StudentRecordResponse upsertStudentRecord(Long studentId, StudentRecordRequest request) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDENT_NOT_FOUND));
+
+        StudentRecord record = studentRecordRepository
+                .findByStudentIdAndSchoolYearAndSemester(
+                        studentId,
+                        request.getSchoolYear(),
+                        request.getSemester()
+                )
+                .orElseGet(() -> studentRecordRepository.save(StudentRecord.builder()
+                        .student(student)
+                        .schoolYear(request.getSchoolYear())
+                        .semester(request.getSemester())
+                        .build()));
+
+        record.update(
+                request.getSpecialNote(),
+                request.getBehaviorNote(),
+                request.getCareerHope(),
+                request.getHealthNote()
+        );
+
+        return StudentRecordResponse.from(record);
+    }
 }

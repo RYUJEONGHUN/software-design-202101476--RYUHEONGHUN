@@ -2,6 +2,7 @@ package SoftwareDesign.demo.api.feedback;
 
 import SoftwareDesign.demo.api.feedback.dto.FeedbackCreateRequest;
 import SoftwareDesign.demo.api.feedback.dto.FeedbackResponse;
+import SoftwareDesign.demo.api.feedback.dto.FeedbackSearchCondition;
 import SoftwareDesign.demo.api.feedback.dto.FeedbackUpdateRequest;
 import SoftwareDesign.demo.domain.common.ApiResponse;
 import SoftwareDesign.demo.domain.common.SuccessCode;
@@ -40,10 +41,12 @@ public class FeedbackController implements FeedbackApi{
     @PreAuthorize("hasRole('PARENT')")
     public ResponseEntity<ApiResponse<List<FeedbackResponse>>> getFeedbacksForParent(
             @PathVariable Long studentId,
+            FeedbackSearchCondition condition,
             Authentication authentication) {
 
         String email = authentication.getName();
-        List<FeedbackResponse> responses = feedbackService.getFeedbacksForParent(email, studentId);
+        List<FeedbackResponse> responses =
+                feedbackService.getFeedbacksForParent(email, studentId, condition);
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, responses));
     }
@@ -52,9 +55,12 @@ public class FeedbackController implements FeedbackApi{
     @GetMapping("/student/{studentId}/all")
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<ApiResponse<List<FeedbackResponse>>> getAllFeedbacks(
-            @PathVariable Long studentId) {
+            @PathVariable Long studentId,
+            FeedbackSearchCondition condition) {
 
-        List<FeedbackResponse> responses = feedbackService.getFeedbacksForStaff(studentId);
+        List<FeedbackResponse> responses =
+                feedbackService.getFeedbacksForStaff(studentId, condition);
+
         return ResponseEntity.ok(ApiResponse.success(SuccessCode.GET_SUCCESS, responses));
     }
 

@@ -1,9 +1,7 @@
 package SoftwareDesign.demo.api.student;
 
 
-import SoftwareDesign.demo.api.student.dto.StudentDetailResponse;
-import SoftwareDesign.demo.api.student.dto.StudentSearchCondition;
-import SoftwareDesign.demo.api.student.dto.StudentSummaryResponse;
+import SoftwareDesign.demo.api.student.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,6 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 
 @Tag(name = "Student", description = "학생 관리 API")
@@ -47,4 +48,23 @@ public interface StudentApi {
             Pageable pageable
     );
 
+    @Operation(summary = "학생부 기록 목록 조회", description = "특정 학생의 학년도/학기별 학생부 기록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "학생부 기록 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "학생 정보 없음")
+    })
+    ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<List<StudentRecordResponse>>> getStudentRecords(
+            @PathVariable Long studentId
+    );
+
+    @Operation(summary = "학생부 기록 등록/수정", description = "교사 또는 관리자가 특정 학생의 학년도/학기별 학생부 기록을 등록하거나 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "학생부 기록 저장 성공"),
+            @ApiResponse(responseCode = "403", description = "권한 없음"),
+            @ApiResponse(responseCode = "404", description = "학생 정보 없음")
+    })
+    ResponseEntity<SoftwareDesign.demo.domain.common.ApiResponse<StudentRecordResponse>> upsertStudentRecord(
+            @PathVariable Long studentId,
+            @RequestBody StudentRecordRequest request
+    );
 }

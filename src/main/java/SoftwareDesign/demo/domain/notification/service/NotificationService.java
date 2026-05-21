@@ -96,7 +96,7 @@ public class NotificationService {
     public void markAsRead(String email, Long notificationId) {
         // 알림 조회
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
         // 유저 조회
         User user = userRepository.findByUsername(email)

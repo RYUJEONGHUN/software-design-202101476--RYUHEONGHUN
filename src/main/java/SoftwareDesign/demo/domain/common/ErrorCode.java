@@ -35,6 +35,11 @@ public enum ErrorCode {
     // 404 Not Found
     DATA_NOT_FOUND(HttpStatus.NOT_FOUND, "요청하신 데이터를 찾을 수 없구먼."),
     ATTENDANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "출석정보를 찾을 수 없다"),
+    FEEDBACK_NOT_FOUND(HttpStatus.NOT_FOUND, "피드백을 찾을 수 없습니다."),
+    GRADE_NOT_FOUND(HttpStatus.NOT_FOUND, "성적 정보를 찾을 수 없습니다."),
+    CONSULTATION_NOT_FOUND(HttpStatus.NOT_FOUND, "상담 내역을 찾을 수 없습니다."),
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "알림을 찾을 수 없습니다."),
+    STUDENT_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "학생부 기록을 찾을 수 없습니다."),
     // 500 Internal Server Error
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버가 좀 아픈가 보네...");
 

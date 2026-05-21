@@ -127,7 +127,7 @@ public class GradeService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Grade grade = gradeRepository.findById(gradeId)
-                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.GRADE_NOT_FOUND));
 
         if (user.getRole() == UserRole.TEACHER) {
             Teacher teacher = teacherRepository.findById(user.getId())
