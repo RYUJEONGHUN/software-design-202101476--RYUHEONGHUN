@@ -120,7 +120,6 @@ public class StudentService {
 
         Map<String, Double> gradeMap = gradeRepository.findAllByStudentNumbers(sNums)
                 .stream()
-                .filter(grade -> grade.getScore() != null)
                 .collect(Collectors.groupingBy(
                         grade -> grade.getStudent().getStudentNumber(),
                         Collectors.averagingInt(Grade::getScore)

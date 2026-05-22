@@ -3,6 +3,7 @@ package SoftwareDesign.demo.domain.consultation.entity;
 import SoftwareDesign.demo.domain.common.BaseTimeEntity;
 import SoftwareDesign.demo.domain.student.entity.Student;
 import SoftwareDesign.demo.domain.teacher.entity.Teacher;
+import SoftwareDesign.demo.global.security.AesGcmStringEncryptor;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -32,6 +33,7 @@ public class Consultation extends BaseTimeEntity {
     private LocalDate consultationDate; // 상담 날짜
 
     @Column(columnDefinition = "TEXT")
+    @Convert(converter = AesGcmStringEncryptor.class)
     private String content; // 상담 내용
 
     @Column(name = "next_plan_date", nullable = true)

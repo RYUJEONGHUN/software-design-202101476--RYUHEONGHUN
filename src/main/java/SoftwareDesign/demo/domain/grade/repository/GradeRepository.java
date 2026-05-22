@@ -18,27 +18,7 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
     @Query("select g from Grade g " +
             "join fetch g.subject " +
             "join fetch g.student s " +
-            "where g.semester = :semester")
-    List<Grade> findAllBySemesterWithStudentAndSubject(@Param("semester") String semester);
-
-    @Query("select g from Grade g " +
-            "join fetch g.student s " +
-            "where s.studentNumber in :studentNumbers")
-    List<Grade> findAllByStudentNumbers(@Param("studentNumbers") List<String> studentNumbers);
-
-    @Query("select g from Grade g " +
-            "join fetch g.subject " +
-            "join fetch g.student s " +
             "join fetch s.user " +
-            "where g.student.id = :studentId and g.semester = :semester")
-    List<Grade> findAllByStudentIdAndSemesterWithSubject(
-            @Param("studentId") Long studentId,
-            @Param("semester") String semester
-    );
-
-    @Query("select g from Grade g " +
-            "join fetch g.subject " +
-            "join fetch g.student s " +
             "where g.semester = :semester " +
             "and s.grade = :grade " +
             "and s.classNum = :classNum")
@@ -51,10 +31,35 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
     @Query("select g from Grade g " +
             "join fetch g.subject " +
             "join fetch g.student s " +
+            "join fetch s.user " +
             "where g.semester = :semester " +
             "and s.grade = :grade")
     List<Grade> findTotalGrades(
             @Param("semester") String semester,
             @Param("grade") int grade
     );
+
+    @Query("select g from Grade g " +
+            "join fetch g.student s " +
+            "where s.studentNumber in :studentNumbers")
+    List<Grade> findAllByStudentNumbers(@Param("studentNumbers") List<String> studentNumbers);
+
+    @Query("select g from Grade g " +
+            "join fetch g.subject " +
+            "join fetch g.student s " +
+            "where g.semester = :semester")
+    List<Grade> findAllBySemesterWithStudentAndSubject(@Param("semester") String semester);
+
+
+    @Query("select g from Grade g " +
+            "join fetch g.subject " +
+            "join fetch g.student s " +
+            "join fetch s.user " +
+            "where g.student.id = :studentId and g.semester = :semester")
+    List<Grade> findAllByStudentIdAndSemesterWithSubject(
+            @Param("studentId") Long studentId,
+            @Param("semester") String semester
+    );
+
+
 }
