@@ -58,4 +58,12 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
             "where a.student.studentNumber in :studentNumbers and a.status = :status " +
             "group by a.student.studentNumber")
     List<Object[]> countByStudentNumbers(@Param("studentNumbers") List<String> studentNumbers, @Param("status") AttendanceStatus status);
+
+    @Query("select a from Attendance a " +
+            "join fetch a.student s " +
+            "where a.date between :startDate and :endDate")
+    List<Attendance> findAllByDateBetweenWithStudent(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }
