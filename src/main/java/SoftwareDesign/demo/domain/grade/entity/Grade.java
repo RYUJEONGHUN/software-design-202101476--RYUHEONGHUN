@@ -3,6 +3,7 @@ package SoftwareDesign.demo.domain.grade.entity;
 import SoftwareDesign.demo.domain.common.BaseTimeEntity;
 import SoftwareDesign.demo.domain.student.entity.Student;
 import SoftwareDesign.demo.domain.subject.entity.Subject;
+import SoftwareDesign.demo.global.security.AesGcmIntegerEncryptor;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,7 +30,8 @@ public class Grade extends BaseTimeEntity {
     private Subject subject;
 
     @Column(nullable = false)
-    private int score;
+    @Convert(converter = AesGcmIntegerEncryptor.class)
+    private Integer score;
 
     @Column(nullable = false)
     private String semester; // 학기 (예: "2026-1")
@@ -37,7 +39,7 @@ public class Grade extends BaseTimeEntity {
     private String letterGrade;
 
     @Builder
-    public Grade(Student student, Subject subject, int score, String semester) {
+    public Grade(Student student, Subject subject, Integer score, String semester) {
         this.student = student;
         this.subject = subject;
         this.score = score;
@@ -45,7 +47,8 @@ public class Grade extends BaseTimeEntity {
         this.letterGrade = calculateLetterGrade(score); // 생성 시 자동 계산!
     }
 
-    private String calculateLetterGrade(int score) {
+    private String calculateLetterGrade(Integer score) {
+        if (score == null) return "F";
         if (score >= 90) return "A";
         if (score >= 80) return "B";
         if (score >= 70) return "C";
@@ -54,7 +57,7 @@ public class Grade extends BaseTimeEntity {
     }
 
     // 성적 수정 시 호출할 메서드
-    public void updateScore(int newScore) {
+    public void updateScore(Integer newScore) {
         this.score = newScore;
         this.letterGrade = calculateLetterGrade(newScore);
     }
