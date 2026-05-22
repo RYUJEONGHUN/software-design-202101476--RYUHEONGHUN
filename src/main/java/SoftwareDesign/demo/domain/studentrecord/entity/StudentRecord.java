@@ -2,6 +2,7 @@ package SoftwareDesign.demo.domain.studentrecord.entity;
 
 import SoftwareDesign.demo.domain.common.BaseTimeEntity;
 import SoftwareDesign.demo.domain.student.entity.Student;
+import SoftwareDesign.demo.global.security.AesGcmStringEncryptor;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -37,15 +38,19 @@ public class StudentRecord extends BaseTimeEntity {
     private String semester;
 
     @Column(columnDefinition = "TEXT")
+    @Convert(converter = AesGcmStringEncryptor.class)
     private String specialNote;
 
     @Column(columnDefinition = "TEXT")
+    @Convert(converter = AesGcmStringEncryptor.class)
     private String behaviorNote;
 
     @Column(columnDefinition = "TEXT")
+    @Convert(converter = AesGcmStringEncryptor.class)
     private String careerHope;
 
     @Column(columnDefinition = "TEXT")
+    @Convert(converter = AesGcmStringEncryptor.class)
     private String healthNote;
 
     @Builder
