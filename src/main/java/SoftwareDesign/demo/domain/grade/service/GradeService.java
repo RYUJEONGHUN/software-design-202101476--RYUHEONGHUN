@@ -94,13 +94,12 @@ public class GradeService {
         List<Grade> myGrades = gradeRepository.findAllByStudentIdAndSemesterWithSubject(studentId, semester);
         //if (myGrades.isEmpty()) throw new CustomException(ErrorCode.DATA_NOT_FOUND);
 
-        Map<Long, Double> classAvgMap = convertToMap(
-                gradeRepository.findClassAverages(semester, currentGrade, currentClass)
+        Map<Long, Double> classAvgMap = calculateAverageBySubject(
+                gradeRepository.findClassGrades(semester, currentGrade, currentClass)
         );
 
-        // 3. 학년 평균 (같은 학년 전체 기준)
-        Map<Long, Double> totalAvgMap = convertToMap(
-                gradeRepository.findTotalAverages(semester, currentGrade)
+        Map<Long, Double> totalAvgMap = calculateAverageBySubject(
+                gradeRepository.findTotalGrades(semester, currentGrade)
         );
 
         // 4. DTO로 변환하여 반환
@@ -108,12 +107,17 @@ public class GradeService {
     }
 
 
-    // 중복 로직을 줄이기 위한 헬퍼 메서드
-    private Map<Long, Double> convertToMap(List<Object[]> results) {
-        return results.stream()
+    private Map<Long, Double> calculateAverageBySubject(List<Grade> grades) {
+        return grades.stream()
+                .collect(Collectors.groupingBy(
+                        grade -> grade.getSubject().getId(),
+                        Collectors.averagingInt(Grade::getScore)
+                ))
+                .entrySet()
+                .stream()
                 .collect(Collectors.toMap(
-                        obj -> (Long) obj[0], // Subject ID
-                        obj -> Math.round((Double) obj[1] * 100) / 100.0 // 소수점 둘째자리
+                        Map.Entry::getKey,
+                        entry -> Math.round(entry.getValue() * 100) / 100.0
                 ));
     }
 
