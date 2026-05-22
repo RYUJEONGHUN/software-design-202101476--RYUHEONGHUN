@@ -27,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.util.StringUtils.hasText;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -71,7 +73,12 @@ public class ConsultationService {
 
     // 조건별 상담 내역 검색
     public List<ConsultationResponse> searchConsultations(ConsultationSearchCondition condition) {
+        String keyword = condition.getKeyword();
+        condition.setKeyword(null);
+
         return consultationRepository.search(condition).stream()
+                .filter(consultation -> !hasText(keyword)
+                        || (consultation.getContent() != null && consultation.getContent().contains(keyword)))
                 .map(ConsultationResponse::new)
                 .collect(Collectors.toList());
     }

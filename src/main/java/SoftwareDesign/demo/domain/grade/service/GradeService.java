@@ -90,9 +90,9 @@ public class GradeService {
         return GradeChartResponse.of(student, semester, myGrades, classAvgMap, totalAvgMap);
     }
 
+
     private Map<Long, Double> calculateAverageBySubject(List<Grade> grades) {
         return grades.stream()
-                .filter(grade -> grade.getScore() != null)
                 .collect(Collectors.groupingBy(
                         grade -> grade.getSubject().getId(),
                         Collectors.averagingInt(Grade::getScore)

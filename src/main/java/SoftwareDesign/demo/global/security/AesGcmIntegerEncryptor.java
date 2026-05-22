@@ -1,7 +1,9 @@
 package SoftwareDesign.demo.global.security;
 
 import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
+@Converter
 public class AesGcmIntegerEncryptor implements AttributeConverter<Integer, String> {
 
     private final AesGcmStringEncryptor stringEncryptor = new AesGcmStringEncryptor();

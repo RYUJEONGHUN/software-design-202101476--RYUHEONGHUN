@@ -48,7 +48,6 @@ public class Grade extends BaseTimeEntity {
     }
 
     private String calculateLetterGrade(Integer score) {
-        if (score == null) return "F";
         if (score >= 90) return "A";
         if (score >= 80) return "B";
         if (score >= 70) return "C";

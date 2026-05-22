@@ -1,6 +1,7 @@
 package SoftwareDesign.demo.global.security;
 
 import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
@@ -11,6 +12,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+@Converter
 public class AesGcmStringEncryptor implements AttributeConverter<String, String> {
 
     private static final String PREFIX = "ENC:v1:";
