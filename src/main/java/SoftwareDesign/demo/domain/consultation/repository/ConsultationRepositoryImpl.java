@@ -38,7 +38,6 @@ public class ConsultationRepositoryImpl implements ConsultationRepositoryCustom 
                         studentIdEq(condition.getStudentId()),
                         studentNameEq(condition.getStudentName()),
                         teacherNameEq(condition.getTeacherName()),
-                        contentContains(condition.getKeyword()),
                         betweenDate(condition.getStartDate(), condition.getEndDate())
                 )
                 .orderBy(consultation.consultationDate.desc())
@@ -60,9 +59,6 @@ public class ConsultationRepositoryImpl implements ConsultationRepositoryCustom 
         return hasText(teacherName) ? teacher.user.name.eq(teacherName) : null;
     }
 
-    private BooleanExpression contentContains(String keyword) {
-        return hasText(keyword) ? consultation.content.contains(keyword) : null;
-    }
     // 2. 날짜 기간 필터
     private BooleanExpression betweenDate(LocalDate startDate, LocalDate endDate) {
         if (startDate == null || endDate == null) {
