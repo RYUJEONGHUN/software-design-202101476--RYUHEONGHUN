@@ -1,6 +1,7 @@
 package SoftwareDesign.demo.domain.user.entity;
 
 import SoftwareDesign.demo.domain.common.BaseTimeEntity;
+import SoftwareDesign.demo.global.security.AesGcmStringEncryptor;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -35,6 +36,7 @@ public class User extends BaseTimeEntity {
     private UserRole role;
 
     @Column(name = "phone_number")
+    @Convert(converter = AesGcmStringEncryptor.class)
     private String phoneNumber;
 
     @Builder

@@ -12,6 +12,7 @@ import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
 import SoftwareDesign.demo.domain.consultation.entity.Consultation;
 import SoftwareDesign.demo.domain.consultation.repository.ConsultationRepository;
+import SoftwareDesign.demo.domain.grade.entity.Grade;
 import SoftwareDesign.demo.domain.grade.repository.GradeRepository;
 import SoftwareDesign.demo.domain.student.entity.Student;
 import SoftwareDesign.demo.domain.student.repository.StudentRepository;
@@ -117,8 +118,12 @@ public class StudentService {
         Map<String, Long> absenceMap = attendanceRepository.countByStudentNumbers(sNums, AttendanceStatus.ABSENT)
                 .stream().collect(Collectors.toMap(obj -> (String)obj[0], obj -> (Long)obj[1]));
 
-        Map<String, Double> gradeMap = gradeRepository.findAverageScoresByStudentNumbers(sNums)
-                .stream().collect(Collectors.toMap(obj -> (String)obj[0], obj -> (Double)obj[1]));
+        Map<String, Double> gradeMap = gradeRepository.findAllByStudentNumbers(sNums)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        grade -> grade.getStudent().getStudentNumber(),
+                        Collectors.averagingInt(Grade::getScore)
+                ));
 
         Map<String, String> consultationMap = consultationRepository.findLatestConsultationsByStudentNumber(sNums)
                 .stream().collect(Collectors.toMap(

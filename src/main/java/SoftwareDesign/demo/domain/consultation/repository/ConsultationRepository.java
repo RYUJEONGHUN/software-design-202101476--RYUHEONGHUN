@@ -31,4 +31,12 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
             "ORDER BY c.nextPlanDate ASC")
     List<Consultation> findAllByTeacherAndNextPlanDateGreaterThanEqualOrderByNextPlanDateAsc(Teacher teacher, LocalDate date);
 
+    @Query("select c from Consultation c " +
+            "join fetch c.student s " +
+            "where c.consultationDate between :startDate and :endDate")
+    List<Consultation> findAllByConsultationDateBetweenWithStudent(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
 }
