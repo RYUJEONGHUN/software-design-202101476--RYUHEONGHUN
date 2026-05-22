@@ -36,3 +36,10 @@ out/
 ### VS Code ###
 .vscode/
 .env
+
+### Database backups ###
+backups/*
+!backups/.gitkeep
+
+### Local PostgreSQL data ###
+postgres_data/
