@@ -5,6 +5,8 @@ import SoftwareDesign.demo.domain.attendance.entity.Attendance;
 import SoftwareDesign.demo.domain.attendance.entity.AttendanceStatus;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Getter
 @Builder
 @AllArgsConstructor
@@ -13,6 +15,7 @@ public class AttendanceEvent {
 
     private Long studentId;
     private String studentName;
+    private LocalDate date;
     private AttendanceStatus status;
     private String note;
 
@@ -20,6 +23,7 @@ public class AttendanceEvent {
         return AttendanceEvent.builder()
                 .studentId(attendance.getStudent().getId())
                 .studentName(attendance.getStudent().getUser().getName())
+                .date(attendance.getDate())
                 .status(attendance.getStatus())
                 .note(attendance.getNote())
                 .build();
