@@ -1,0 +1,7 @@
+package SoftwareDesign.demo.domain.audit.repository;
+
+import SoftwareDesign.demo.domain.audit.entity.AuditLog;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
+}
