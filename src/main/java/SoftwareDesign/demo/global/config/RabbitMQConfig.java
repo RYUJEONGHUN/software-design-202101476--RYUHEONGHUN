@@ -30,6 +30,11 @@ public class RabbitMQConfig {
     public static final String CONSULTATION_QUEUE = "consultation.queue";
     public static final String CONSULTATION_ROUTING_KEY = "consultation.key";
 
+    public static final String ANALYTICS_GRADE_QUEUE = "analytics.grade.queue";
+    public static final String ANALYTICS_ATTENDANCE_QUEUE = "analytics.attendance.queue";
+    public static final String ANALYTICS_CONSULTATION_QUEUE = "analytics.consultation.queue";
+    public static final String ANALYTICS_FEEDBACK_QUEUE = "analytics.feedback.queue";
+
 
     @Bean Queue gradeQueue() {
         return new Queue(GRADE_QUEUE, true);
@@ -45,10 +50,33 @@ public class RabbitMQConfig {
     public Queue consultationQueue() {
         return new Queue(CONSULTATION_QUEUE, true);
     }
+    @Bean
+    public Queue analyticsGradeQueue() {
+        return new Queue(ANALYTICS_GRADE_QUEUE, true);
+    }
+    @Bean
+    public Queue analyticsAttendanceQueue() {
+        return new Queue(ANALYTICS_ATTENDANCE_QUEUE, true);
+    }
+    @Bean
+    public Queue analyticsConsultationQueue() {
+        return new Queue(ANALYTICS_CONSULTATION_QUEUE, true);
+    }
+    @Bean
+    public Queue analyticsFeedbackQueue() {
+        return new Queue(ANALYTICS_FEEDBACK_QUEUE, true);
+    }
 
     @Bean
     public Binding gradeBinding(Queue gradeQueue, DirectExchange commonExchange) {
         return BindingBuilder.bind(gradeQueue)
+                .to(commonExchange)
+                .with(GRADE_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding analyticsGradeBinding(Queue analyticsGradeQueue, DirectExchange commonExchange) {
+        return BindingBuilder.bind(analyticsGradeQueue)
                 .to(commonExchange)
                 .with(GRADE_ROUTING_KEY);
     }
@@ -61,6 +89,13 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Binding analyticsFeedbackBinding(Queue analyticsFeedbackQueue, DirectExchange commonExchange) {
+        return BindingBuilder.bind(analyticsFeedbackQueue)
+                .to(commonExchange)
+                .with(FEEDBACK_ROUTING_KEY);
+    }
+
+    @Bean
     public Binding attendanceBinding(Queue attendanceQueue, DirectExchange commonExchange) {
         return BindingBuilder.bind(attendanceQueue)
                 .to(commonExchange)
@@ -68,8 +103,22 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Binding analyticsAttendanceBinding(Queue analyticsAttendanceQueue, DirectExchange commonExchange) {
+        return BindingBuilder.bind(analyticsAttendanceQueue)
+                .to(commonExchange)
+                .with(ATTENDANCE_ROUTING_KEY);
+    }
+
+    @Bean
     public Binding consultationBinding(Queue consultationQueue, DirectExchange commonExchange) {
         return BindingBuilder.bind(consultationQueue)
+                .to(commonExchange)
+                .with(CONSULTATION_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding analyticsConsultationBinding(Queue analyticsConsultationQueue, DirectExchange commonExchange) {
+        return BindingBuilder.bind(analyticsConsultationQueue)
                 .to(commonExchange)
                 .with(CONSULTATION_ROUTING_KEY);
     }
