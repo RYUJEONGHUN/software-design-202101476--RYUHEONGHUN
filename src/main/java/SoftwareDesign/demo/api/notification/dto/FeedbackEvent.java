@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Getter
 @Builder
 @AllArgsConstructor
@@ -13,12 +15,14 @@ import lombok.NoArgsConstructor;
 public class FeedbackEvent {
     private Long studentId;
     private String teacherName;
+    private LocalDate createdDate;
     private String content;
 
     public static FeedbackEvent from(Feedback feedback) {
         return FeedbackEvent.builder()
                 .studentId(feedback.getStudent().getId())
                 .teacherName(feedback.getTeacher().getUser().getName())
+                .createdDate(LocalDate.now())
                 .content(feedback.getContent())
                 .build();
     }
