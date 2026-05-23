@@ -2,6 +2,7 @@ package SoftwareDesign.demo.domain.attendance.service;
 
 import SoftwareDesign.demo.api.attendance.dto.*;
 import SoftwareDesign.demo.api.notification.dto.AttendanceEvent;
+import SoftwareDesign.demo.api.notification.dto.EventAction;
 import SoftwareDesign.demo.api.student.dto.StudentResponse;
 import SoftwareDesign.demo.domain.attendance.entity.Attendance;
 import SoftwareDesign.demo.domain.attendance.entity.AttendanceStatus;
@@ -79,7 +80,7 @@ public class AttendanceService {
                     rabbitTemplate.convertAndSend(
                             RabbitMQConfig.COMMON_EXCHANGE,
                             RabbitMQConfig.ATTENDANCE_ROUTING_KEY,
-                            AttendanceEvent.from(saved)
+                            AttendanceEvent.from(saved, EventAction.CREATED)
                     );
                 }
             });
@@ -131,6 +132,12 @@ public class AttendanceService {
         if (!oldStatus.equals(request.getStatus())) {
             cacheAttendanceRate(attendance.getStudent().getId());
         }
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.COMMON_EXCHANGE,
+                RabbitMQConfig.ATTENDANCE_ROUTING_KEY,
+                AttendanceEvent.from(attendance, EventAction.UPDATED)
+        );
     }
 
 

@@ -8,6 +8,8 @@ import SoftwareDesign.demo.domain.attendance.entity.AttendanceStatus;
 import SoftwareDesign.demo.domain.attendance.repository.AttendanceRepository;
 import SoftwareDesign.demo.domain.consultation.entity.Consultation;
 import SoftwareDesign.demo.domain.consultation.repository.ConsultationRepository;
+import SoftwareDesign.demo.domain.feedback.entity.Feedback;
+import SoftwareDesign.demo.domain.feedback.repository.FeedbackRepository;
 import SoftwareDesign.demo.domain.grade.entity.Grade;
 import SoftwareDesign.demo.domain.grade.repository.GradeRepository;
 import SoftwareDesign.demo.domain.student.entity.Student;
@@ -32,9 +34,10 @@ public class AnalyticsService {
     private final StudentRepository studentRepository;
     private final AttendanceRepository attendanceRepository;
     private final ConsultationRepository consultationRepository;
+    private final FeedbackRepository feedbackRepository;
 
     @Transactional
-    public int refreshClassSubjectAnalytics(String semester) {
+    public synchronized int refreshClassSubjectAnalytics(String semester) {
         SemesterPeriod period = SemesterPeriod.from(semester);
         List<Student> students = studentRepository.findAll();
         List<Grade> grades = gradeRepository.findAllBySemesterWithStudentAndSubject(semester);
@@ -45,6 +48,10 @@ public class AnalyticsService {
         List<Consultation> consultations = consultationRepository.findAllByConsultationDateBetweenWithStudent(
                 period.startDate(),
                 period.endDate()
+        );
+        List<Feedback> feedbacks = feedbackRepository.findAllByCreatedAtBetweenWithStudent(
+                period.startDate().atStartOfDay(),
+                period.endDate().atTime(23, 59, 59)
         );
 
         Map<ClassKey, Long> studentCountMap = students.stream()
@@ -71,6 +78,15 @@ public class AnalyticsService {
                         Collectors.counting()
                 ));
 
+        Map<ClassKey, Long> feedbackCountMap = feedbacks.stream()
+                .collect(Collectors.groupingBy(
+                        feedback -> new ClassKey(
+                                feedback.getStudent().getGrade(),
+                                feedback.getStudent().getClassNum()
+                        ),
+                        Collectors.counting()
+                ));
+
         Map<AnalyticsKey, List<Grade>> gradeGroups = grades.stream()
                 .collect(Collectors.groupingBy(grade -> new AnalyticsKey(
                         grade.getStudent().getGrade(),
@@ -81,10 +97,10 @@ public class AnalyticsService {
 
         List<ClassSubjectAnalytics> analyticsRows = gradeGroups.entrySet().stream()
                 .map(entry -> toAnalytics(semester, entry.getKey(), entry.getValue(),
-                        studentCountMap, attendanceSummaryMap, consultationCountMap))
+                        studentCountMap, attendanceSummaryMap, consultationCountMap, feedbackCountMap))
                 .toList();
 
-        analyticsRepository.deleteAllBySemester(semester);
+        analyticsRepository.deleteBySemester(semester);
         analyticsRepository.saveAll(analyticsRows);
         return analyticsRows.size();
     }
@@ -112,7 +128,8 @@ public class AnalyticsService {
     private ClassSubjectAnalytics toAnalytics(String semester, AnalyticsKey key, List<Grade> grades,
                                               Map<ClassKey, Long> studentCountMap,
                                               Map<ClassKey, AttendanceSummary> attendanceSummaryMap,
-                                              Map<ClassKey, Long> consultationCountMap) {
+                                              Map<ClassKey, Long> consultationCountMap,
+                                              Map<ClassKey, Long> feedbackCountMap) {
         ClassKey classKey = new ClassKey(key.grade(), key.classNum());
         AttendanceSummary attendance = attendanceSummaryMap.getOrDefault(classKey, AttendanceSummary.empty());
         double averageScore = grades.stream()
@@ -136,6 +153,7 @@ public class AnalyticsService {
                 .tardyCount(attendance.tardyCount())
                 .excusedCount(attendance.excusedCount())
                 .consultationCount(consultationCountMap.getOrDefault(classKey, 0L))
+                .feedbackCount(feedbackCountMap.getOrDefault(classKey, 0L))
                 .build();
     }
 

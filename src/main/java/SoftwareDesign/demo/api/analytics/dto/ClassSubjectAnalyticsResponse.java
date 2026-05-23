@@ -22,6 +22,7 @@ public class ClassSubjectAnalyticsResponse {
     private long tardyCount;
     private long excusedCount;
     private long consultationCount;
+    private long feedbackCount;
 
     public static ClassSubjectAnalyticsResponse from(ClassSubjectAnalytics analytics) {
         return ClassSubjectAnalyticsResponse.builder()
@@ -39,6 +40,7 @@ public class ClassSubjectAnalyticsResponse {
                 .tardyCount(analytics.getTardyCount())
                 .excusedCount(analytics.getExcusedCount())
                 .consultationCount(analytics.getConsultationCount())
+                .feedbackCount(analytics.getFeedbackCount())
                 .build();
     }
 }

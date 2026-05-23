@@ -52,13 +52,14 @@ public class ClassSubjectAnalytics extends BaseTimeEntity {
     private long tardyCount;
     private long excusedCount;
     private long consultationCount;
+    private long feedbackCount;
 
     @Builder
     public ClassSubjectAnalytics(String semester, int grade, int classNum,
                                  Long subjectId, String subjectName,
                                  long studentCount, long gradeCount, double averageScore,
                                  long presentCount, long absentCount, long tardyCount,
-                                 long excusedCount, long consultationCount) {
+                                 long excusedCount, long consultationCount, long feedbackCount) {
         this.semester = semester;
         this.grade = grade;
         this.classNum = classNum;
@@ -72,5 +73,6 @@ public class ClassSubjectAnalytics extends BaseTimeEntity {
         this.tardyCount = tardyCount;
         this.excusedCount = excusedCount;
         this.consultationCount = consultationCount;
+        this.feedbackCount = feedbackCount;
     }
 }

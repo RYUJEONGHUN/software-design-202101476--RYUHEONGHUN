@@ -17,14 +17,20 @@ public class GradeEvent {
     private String semester;
     private String subjectName;
     private Integer score;
+    private EventAction action;
 
     public static GradeEvent from(Grade grade) {
+        return from(grade, EventAction.UPDATED);
+    }
+
+    public static GradeEvent from(Grade grade, EventAction action) {
         return GradeEvent.builder()
                 .studentId(grade.getStudent().getId())
                 .semester(grade.getSemester())
                 .letterGrade(grade.getLetterGrade())
                 .subjectName(grade.getSubject().getName())
                 .score(grade.getScore())
+                .action(action)
                 .build();
     }
 }

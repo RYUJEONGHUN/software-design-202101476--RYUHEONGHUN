@@ -4,6 +4,7 @@ import SoftwareDesign.demo.api.feedback.dto.FeedbackCreateRequest;
 import SoftwareDesign.demo.api.feedback.dto.FeedbackResponse;
 import SoftwareDesign.demo.api.feedback.dto.FeedbackSearchCondition;
 import SoftwareDesign.demo.api.feedback.dto.FeedbackUpdateRequest;
+import SoftwareDesign.demo.api.notification.dto.EventAction;
 import SoftwareDesign.demo.api.notification.dto.FeedbackEvent;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
@@ -62,7 +63,7 @@ public class FeedbackService {
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.COMMON_EXCHANGE,
                 RabbitMQConfig.FEEDBACK_ROUTING_KEY,
-                FeedbackEvent.from(feedback)
+                FeedbackEvent.from(feedback, EventAction.CREATED)
         );
     }
 
@@ -114,6 +115,12 @@ public class FeedbackService {
 
         // 더티 체킹으로 반영
         feedback.updateContent(request.getContent(), request.getCategory(), request.isVisibleToParent());
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.COMMON_EXCHANGE,
+                RabbitMQConfig.FEEDBACK_ROUTING_KEY,
+                FeedbackEvent.from(feedback, EventAction.UPDATED)
+        );
     }
 
 

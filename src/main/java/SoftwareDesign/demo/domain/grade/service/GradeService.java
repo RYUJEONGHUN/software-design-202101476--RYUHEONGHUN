@@ -3,6 +3,7 @@ package SoftwareDesign.demo.domain.grade.service;
 import SoftwareDesign.demo.api.grade.dto.GradeChartResponse;
 import SoftwareDesign.demo.api.grade.dto.GradeCreateRequest;
 import SoftwareDesign.demo.api.grade.dto.GradeUpdateRequest;
+import SoftwareDesign.demo.api.notification.dto.EventAction;
 import SoftwareDesign.demo.api.notification.dto.GradeEvent;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
@@ -66,7 +67,7 @@ public class GradeService {
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.COMMON_EXCHANGE,
                 RabbitMQConfig.GRADE_ROUTING_KEY,
-                GradeEvent.from(grade)
+                GradeEvent.from(grade, EventAction.CREATED)
         );
     }
 
@@ -133,7 +134,7 @@ public class GradeService {
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.COMMON_EXCHANGE,
                 RabbitMQConfig.GRADE_ROUTING_KEY,
-                GradeEvent.from(grade)
+                GradeEvent.from(grade, EventAction.UPDATED)
         );
     }
 }

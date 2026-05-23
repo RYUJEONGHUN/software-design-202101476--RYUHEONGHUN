@@ -5,6 +5,7 @@ import SoftwareDesign.demo.domain.feedback.entity.Feedback;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -22,5 +23,13 @@ public interface FeedbackRepository extends JpaRepository<Feedback,Long>, Feedba
             "join fetch t.user " + // 선생님 이름까지 한방에!
             "where f.student.id = :studentId")
     List<Feedback> findAllByStudentId(@Param("studentId") Long studentId);
+
+    @Query("select f from Feedback f " +
+            "join fetch f.student s " +
+            "where f.createdAt between :startDateTime and :endDateTime")
+    List<Feedback> findAllByCreatedAtBetweenWithStudent(
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime
+    );
 
 }
