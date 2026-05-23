@@ -18,14 +18,20 @@ public class AttendanceEvent {
     private LocalDate date;
     private AttendanceStatus status;
     private String note;
+    private EventAction action;
 
     public static AttendanceEvent from(Attendance attendance) {
+        return from(attendance, EventAction.UPDATED);
+    }
+
+    public static AttendanceEvent from(Attendance attendance, EventAction action) {
         return AttendanceEvent.builder()
                 .studentId(attendance.getStudent().getId())
                 .studentName(attendance.getStudent().getUser().getName())
                 .date(attendance.getDate())
                 .status(attendance.getStatus())
                 .note(attendance.getNote())
+                .action(action)
                 .build();
     }
 }

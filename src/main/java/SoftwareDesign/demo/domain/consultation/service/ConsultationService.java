@@ -5,6 +5,7 @@ import SoftwareDesign.demo.api.consultation.dto.ConsultationResponse;
 import SoftwareDesign.demo.api.consultation.dto.ConsultationSearchCondition;
 import SoftwareDesign.demo.api.consultation.dto.ConsultationUpdateRequest;
 import SoftwareDesign.demo.api.notification.dto.ConsultationEvent;
+import SoftwareDesign.demo.api.notification.dto.EventAction;
 import SoftwareDesign.demo.domain.common.ErrorCode;
 import SoftwareDesign.demo.domain.common.exception.CustomException;
 import SoftwareDesign.demo.domain.consultation.entity.Consultation;
@@ -66,7 +67,7 @@ public class ConsultationService {
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.COMMON_EXCHANGE,
                 RabbitMQConfig.CONSULTATION_ROUTING_KEY,
-                ConsultationEvent.from(consultation)
+                ConsultationEvent.from(consultation, EventAction.CREATED)
         );
 
     }
@@ -103,7 +104,7 @@ public class ConsultationService {
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.COMMON_EXCHANGE,
                 RabbitMQConfig.CONSULTATION_ROUTING_KEY,
-                ConsultationEvent.from(consultation)
+                ConsultationEvent.from(consultation, EventAction.UPDATED)
         );
     }
 }
