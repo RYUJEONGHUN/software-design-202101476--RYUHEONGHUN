@@ -1,0 +1,6 @@
+aws_region   = "ap-northeast-2"
+cluster_name = "school-cluster"
+environment  = "dev"
+db_name       = "schooldb"
+db_username   = "admin"
+db_password   = "change-this-rds-password"
