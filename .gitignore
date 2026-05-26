@@ -43,3 +43,12 @@ backups/*
 
 ### Local PostgreSQL data ###
 postgres_data/
+
+### Terraform ###
+infra/terraform/.terraform/
+infra/terraform/*.tfstate
+infra/terraform/*.tfstate.*
+infra/terraform/terraform.tfvars
+
+### Kubernetes local secrets ###
+k8s/01-secret.yaml
