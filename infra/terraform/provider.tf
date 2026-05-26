@@ -5,3 +5,5 @@ provider "aws" {
 provider "tls" {}
 
 provider "cloudinit" {}
+
+provider "null" {}
