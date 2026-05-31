@@ -4,6 +4,8 @@ import SoftwareDesign.demo.domain.studentrecord.entity.StudentRecord;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class StudentRecordResponse {
@@ -15,6 +17,7 @@ public class StudentRecordResponse {
     private String behaviorNote;
     private String careerHope;
     private String healthNote;
+    private LocalDateTime updatedAt;
 
     public static StudentRecordResponse from(StudentRecord record) {
         return StudentRecordResponse.builder()
@@ -26,6 +29,7 @@ public class StudentRecordResponse {
                 .behaviorNote(record.getBehaviorNote())
                 .careerHope(record.getCareerHope())
                 .healthNote(record.getHealthNote())
+                .updatedAt(record.getUpdatedAt())
                 .build();
     }
 }

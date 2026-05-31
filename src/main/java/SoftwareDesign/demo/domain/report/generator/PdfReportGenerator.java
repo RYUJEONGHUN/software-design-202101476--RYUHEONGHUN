@@ -267,14 +267,20 @@ public class PdfReportGenerator {
     }
 
     private PDFont loadKoreanFont(PDDocument document) throws IOException {
-        File fontFile = new File("C:\\Windows\\Fonts\\malgun.ttf");
-        if (!fontFile.exists()) {
-            fontFile = new File("C:\\Windows\\Fonts\\gulim.ttc");
+        String[] fontPaths = {
+                "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
+                "/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf",
+                "C:\\Windows\\Fonts\\malgun.ttf",
+                "C:\\Windows\\Fonts\\gulim.ttc"
+        };
+        for (String fontPath : fontPaths) {
+            File fontFile = new File(fontPath);
+            if (fontFile.exists()) {
+                return PDType0Font.load(document, fontFile);
+            }
         }
-        if (!fontFile.exists()) {
-            throw new IllegalStateException("PDF 생성을 위한 한글 폰트를 찾을 수 없습니다.");
-        }
-        return PDType0Font.load(document, fontFile);
+
+        throw new IllegalStateException("PDF 생성을 위한 한글 폰트를 찾을 수 없습니다.");
     }
 
     private void writeText(PDPageContentStream content, PDFont font, int fontSize,

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -25,6 +26,15 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final JwtTokenProvider tokenProvider; // 주입받은 빈 사용
     private final RedisTemplate<String, String> redisTemplate;
+
+    @Value("${app.frontend.login-success-url:http://localhost:5173/login-success}")
+    private String loginSuccessUrl;
+
+    @Value("${app.cookie.secure:false}")
+    private boolean cookieSecure;
+
+    @Value("${app.cookie.same-site:Lax}")
+    private String cookieSameSite;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -53,16 +63,16 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 리프레시 토큰 쿠키 설정 (보안 강화)
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
-                .secure(false) // 로컬(http) 개발 시 false, 운영(https) 시 true
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
-                .sameSite("Lax")
+                .sameSite(cookieSameSite)
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         // 프론트엔드로 AccessToken만 전달 (React 등 프론트 주소)
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/login-success")
+        String targetUrl = UriComponentsBuilder.fromUriString(loginSuccessUrl)
                 .queryParam("accessToken", accessToken)
                 .build()
                 .toUriString();

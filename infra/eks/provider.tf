@@ -4,6 +4,8 @@ provider "aws" {
 
 provider "tls" {}
 
-provider "cloudinit" {}
+provider "time" {}
 
 provider "null" {}
+
+provider "cloudinit" {}
