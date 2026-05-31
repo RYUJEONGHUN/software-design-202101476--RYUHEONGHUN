@@ -10,6 +10,7 @@ metadata:
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:815459455266:certificate/7f5f3387-17ac-4cf6-8488-6c3e431d3490
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     alb.ingress.kubernetes.io/healthcheck-path: /swagger-ui/index.html
+    alb.ingress.kubernetes.io/target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=300
 spec:
   ingressClassName: alb
   rules:
