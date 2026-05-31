@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: school-api
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/RYUJEONGHUN/software-design-202101476--RYUHEONGHUN.git
+    targetRevision: feature/epic19-CICD
+    path: k8s
+    directory:
+      recurse: false
+      exclude: "{01-secret.yaml,local/**}"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: school
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
