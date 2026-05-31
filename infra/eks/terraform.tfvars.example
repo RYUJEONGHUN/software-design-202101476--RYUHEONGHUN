@@ -1,0 +1,10 @@
+aws_region  = "ap-northeast-2"
+environment = "dev"
+cluster_name = "school-cluster"
+
+vpc_id = "vpc-xxxxxxxxxxxxxxxxx"
+
+public_subnet_ids = [
+  "subnet-xxxxxxxxxxxxxxxxx",
+  "subnet-yyyyyyyyyyyyyyyyy"
+]

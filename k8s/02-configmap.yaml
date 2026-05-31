@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: school-config
+  namespace: school
+data:
+  SPRING_PROFILES_ACTIVE: prod
+  DB_URL: jdbc:postgresql://school-dev-postgres.cvyyg04qe2ul.ap-northeast-2.rds.amazonaws.com:5432/schooldb
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_PORT: "5672"
+  FRONTEND_LOGIN_SUCCESS_URL: https://software-design-202101476-ryuheongh.vercel.app/login-success
+  COOKIE_SECURE: "true"
+  COOKIE_SAME_SITE: None

@@ -3,10 +3,37 @@ spring:
     activate:
       on-profile: prod
   datasource:
-    url: jdbc:postgresql://db:5432/schooldb # 서비스 이름 'db' 사용
-    username: admin
-    password: password
+    url: ${DB_URL:jdbc:postgresql://postgres:5432/schooldb}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
   data:
     redis:
-      host: redis # 서비스 이름 'redis' 사용
-      port: 6379
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:rabbitmq}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:admin}
+    password: ${RABBITMQ_PASSWORD:password}
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+
+jwt:
+  secret: ${JWT_SECRET_KEY}
+
+data:
+  encryption:
+    key: ${DATA_ENCRYPTION_KEY:${JWT_SECRET_KEY}}
+
+app:
+  frontend:
+    login-success-url: ${FRONTEND_LOGIN_SUCCESS_URL:https://software-design-202101476-ryuheongh.vercel.app/login-success}
+  cookie:
+    secure: ${COOKIE_SECURE:true}
+    same-site: ${COOKIE_SAME_SITE:None}

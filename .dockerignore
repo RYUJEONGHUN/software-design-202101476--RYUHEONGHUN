@@ -1,0 +1,12 @@
+.git
+.gradle
+.idea
+build
+out
+postgres_data
+backups
+docs
+scripts
+.env
+*.iml
+*.log
